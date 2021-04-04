@@ -21,6 +21,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import _ from 'lodash';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -215,13 +216,24 @@ export default function Tables(props) {
     rowsPerPageOptions,
     title,
   } = props;
-
+  console.log('props -------------', props);
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('calories');
+  const [orderBy, setOrderBy] = React.useState(headCells[0].id);
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(startRowsPerPage);
+  const [headerKeysInTabel, setHeaderKeysInTabel] = React.useState([]);
+
+  console.log('headerKeysInTabel', headerKeysInTabel);
+  console.log('orderBy', orderBy);
+
+  useEffect(() => {
+    const keys = headCells.map(headerCell => {
+      return headerCell?.id;
+    });
+    setHeaderKeysInTabel(keys);
+  }, []);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -305,14 +317,26 @@ export default function Tables(props) {
                   const isItemSelected = isSelected(row.name);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
+                  // only using values chosen by parent component
+                  let filteredRow = {};
+                  for (const key in row) {
+                    if (Object.hasOwnProperty.call(row, key)) {
+                      if (headerKeysInTabel.includes(key)) {
+                        filteredRow[key] = row[key];
+                      }
+                    }
+                  }
+
                   return (
                     <TableRow
                       hover
-                      onClick={event => handleClick(event, row.name)}
+                      onClick={event =>
+                        handleClick(event, filteredRow[orderBy])
+                      }
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
-                      key={row.name}
+                      key={filteredRow[orderBy]}
                       selected={isItemSelected}
                     >
                       <TableCell padding="checkbox">
@@ -327,12 +351,18 @@ export default function Tables(props) {
                         scope="row"
                         padding="none"
                       >
-                        {row.name}
+                        {filteredRow[headerKeysInTabel[0]]}
                       </TableCell>
-                      <TableCell align="right">{row.calories}</TableCell>
-                      <TableCell align="right">{row.fat}</TableCell>
-                      <TableCell align="right">{row.carbs}</TableCell>
-                      <TableCell align="right">{row.protein}</TableCell>
+                      {headerKeysInTabel.map(
+                        (key, index) =>
+                          index > 0 && (
+                            <>
+                              <TableCell align="left">
+                                {filteredRow[key]}
+                              </TableCell>
+                            </>
+                          ),
+                      )}
                     </TableRow>
                   );
                 })}
@@ -356,7 +386,7 @@ export default function Tables(props) {
       </Paper>
       <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Dense padding"
+        label="Tæt tabel"
       />
     </div>
   );

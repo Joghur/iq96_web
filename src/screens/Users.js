@@ -25,8 +25,8 @@ export const Users = () => {
   const [active, setActive] = useState(true);
 
   const headCells = [
-    { id: 'username', numeric: false, disablePadding: false, label: 'IQ-navn' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Navn' },
+    { id: 'username', numeric: false, disablePadding: false, label: 'IQ-navn' },
     { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
     { id: 'address', numeric: false, disablePadding: false, label: 'Adresse' },
     {
@@ -39,7 +39,7 @@ export const Users = () => {
 
   let tabelArray;
   if (data) {
-    console.log('data --------------', data);
+    // console.log('data --------------', data);
     tabelArray = data.allUsers?.users.filter(user => {
       return user.active;
     });

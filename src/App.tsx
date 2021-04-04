@@ -2,29 +2,29 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import 'dotenv/config';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 import Header from './components/Header';
 import { Users } from './screens/Users';
 
-const Block = styled.div`
-  background-color: white;
-  &:hover {
-    background-color: lightblue;
-  }
-`;
+// const Block = styled.div`
+//   background-color: white;
+//   &:hover {
+//     background-color: lightblue;
+//   }
+// `;
 
-const BoldBlock = styled(Block)`
-  font-weight: bold;
-  border: 3px solid ${({ color }) => color || 'blue'};
-  padding: 10px;
-`;
+// const BoldBlock = styled(Block)`
+//   font-weight: bold;
+//   border: 3px solid ${({ color }) => color || 'blue'};
+//   padding: 10px;
+// `;
 
 const App = () => {
   return (
     <div className="App">
       <Header />
-      <Block>Hejsa</Block>
-      <BoldBlock>Hej igen</BoldBlock>
+      {/* <Block>Hejsa</Block> */}
+      {/* <BoldBlock>Hej igen</BoldBlock> */}
       <Users />
       <div>
         {/* <iframe
