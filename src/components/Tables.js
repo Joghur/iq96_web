@@ -216,17 +216,17 @@ export default function Tables(props) {
     rowsPerPageOptions,
     title,
   } = props;
-  console.log('props -------------', props);
+  // console.log('props -------------', props);
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState(headCells[0].id);
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
+  const [dense, setDense] = React.useState(true);
   const [rowsPerPage, setRowsPerPage] = React.useState(startRowsPerPage);
   const [headerKeysInTabel, setHeaderKeysInTabel] = React.useState([]);
 
-  console.log('headerKeysInTabel', headerKeysInTabel);
-  console.log('orderBy', orderBy);
+  // console.log('headerKeysInTabel', headerKeysInTabel);
+  // console.log('orderBy', orderBy);
 
   useEffect(() => {
     const keys = headCells.map(headerCell => {
@@ -384,10 +384,10 @@ export default function Tables(props) {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel
+      {/* <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Tæt tabel"
-      />
+      /> */}
     </div>
   );
 }

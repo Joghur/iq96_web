@@ -4,7 +4,8 @@
 import 'dotenv/config';
 // import styled from 'styled-components';
 import Header from './components/Header';
-import { Users } from './screens/Users';
+import { Pdfs } from './components/Pdfs';
+// import { Users } from './screens/Users';
 
 // const Block = styled.div`
 //   background-color: white;
@@ -25,7 +26,7 @@ const App = () => {
       <Header />
       {/* <Block>Hejsa</Block> */}
       {/* <BoldBlock>Hej igen</BoldBlock> */}
-      <Users />
+      {/* <Users /> */}
       <div>
         {/* <iframe
           width="1165"
@@ -34,6 +35,7 @@ const App = () => {
           src={process.env.IQ_URL}
         /> */}
       </div>
+      <Pdfs />
     </div>
   );
 };
