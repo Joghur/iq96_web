@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
@@ -26,6 +26,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
+import { SERVER_URL } from '../constants';
 
 // getting pdf state and rows in tabel to make sure pdf is written
 // with amount of rows that has been chosen
@@ -97,14 +98,16 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all users' }}
-          />
-        </TableCell>
+        {!pdfOnlyMode && (
+          <TableCell padding="checkbox">
+            <Checkbox
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+              inputProps={{ 'aria-label': 'select all users' }}
+            />
+          </TableCell>
+        )}
         {headCells.map(headCell => (
           <TableCell
             key={headCell.id}
@@ -165,26 +168,34 @@ const useToolbarStyles = makeStyles(theme => ({
 const EnhancedTableToolbar = props => {
   const classes = useToolbarStyles();
   const { numSelected, title } = props;
-  const [skipQuery, setSkipQuery] = useState(true);
-  const [data, setData] = useState();
+  // const [skipQuery, setSkipQuery] = useState(true);
+  // const [data, setData] = useState();
 
   // let query loose once when icon is pressed. Query will close after run
-  let { loading } = useQuery(PDF, {
-    skip: skipQuery,
-    onCompleted: data => {
-      setData(data);
-      setSkipQuery(true);
-    },
-  });
+  // let { loading } = useQuery(PDF, {
+  //   skip: skipQuery,
+  //   onCompleted: data => {
+  //     setData(data);
+  //     setSkipQuery(true);
+  //   },
+  // });
 
   const handleCreatePDF = () => {
     console.log('handleCreatePDF');
-    setSkipQuery(false);
+    const url = SERVER_URL + '/pdf';
+    console.log('url', url);
+    const response = {
+      file: url,
+    };
+    // server sent the url to the file!
+    // now, let's download:
+    window.location.href = response.file;
+    // setSkipQuery(false);
   };
 
-  console.log('data-table', data);
+  // console.log('data-table', data);
 
-  if (loading) return <p> Henter pdf .... </p>;
+  // if (loading) return <p> Henter pdf .... </p>;
 
   return (
     <Toolbar

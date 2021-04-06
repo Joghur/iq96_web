@@ -1,3 +1,12 @@
+# IQ96 web client
+
+### Constant file needed (not provided in repo):
+
+./src/constants.js
+
+> export const IFRAME_URL = 'SOMEURL';
+> export const SERVER_URL = 'IQ96_SERVER_URL';
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

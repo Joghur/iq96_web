@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-import 'dotenv/config';
 import Header from './components/Header';
 // import { Pdfs } from './components/Pdfs';
 import { Users } from './screens/Users';
+import { IFRAME_URL } from './constants';
 
 // const Block = styled.div`
 //   background-color: white;
@@ -32,12 +32,7 @@ const App = () => {
         <Users />
       </div>
       <div>
-        {/* <iframe
-          width="1165"
-          height="655"
-          title="iq96"
-          src={process.env.IQ_URL}
-        /> */}
+        <iframe width="1165" height="655" title="iframe" src={IFRAME_URL} />
         {/* <Pdfs /> */}
       </div>
     </>
