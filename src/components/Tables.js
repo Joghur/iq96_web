@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
@@ -20,8 +20,38 @@ import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
+import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { useQuery } from '@apollo/client';
+import gql from 'graphql-tag';
+
+// getting pdf state and rows in tabel to make sure pdf is written
+// with amount of rows that has been chosen
+const url = new URL(window.location.href);
+const params = new URLSearchParams(url.search);
+const pdfOnlyMode = params.get('pdfonly');
+const rowspage = params.get('rowspage');
+
+const PDFBlock = styled.div`
+#pdf {
+  height: 1056px;
+  width: 816px;
+  background-color: white;
+}
+
+body {
+  background-color: gray;
+  padding: 0px;
+  margin: 0px;
+`;
+
+const PDF = gql`
+  query pdf {
+    pdf
+  }
+`;
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -72,7 +102,7 @@ function EnhancedTableHead(props) {
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all desserts' }}
+            inputProps={{ 'aria-label': 'select all users' }}
           />
         </TableCell>
         {headCells.map(headCell => (
@@ -135,6 +165,27 @@ const useToolbarStyles = makeStyles(theme => ({
 const EnhancedTableToolbar = props => {
   const classes = useToolbarStyles();
   const { numSelected, title } = props;
+  const [skipQuery, setSkipQuery] = useState(true);
+  const [data, setData] = useState();
+
+  // let query loose once when icon is pressed. Query will close after run
+  let { loading } = useQuery(PDF, {
+    skip: skipQuery,
+    onCompleted: data => {
+      setData(data);
+      setSkipQuery(true);
+    },
+  });
+
+  const handleCreatePDF = () => {
+    console.log('handleCreatePDF');
+    setSkipQuery(false);
+  };
+
+  console.log('data-table', data);
+
+  if (loading) return <p> Henter pdf .... </p>;
+
   return (
     <Toolbar
       className={clsx(classes.root, {
@@ -168,11 +219,18 @@ const EnhancedTableToolbar = props => {
           </IconButton>
         </Tooltip>
       ) : (
-        <Tooltip title="Filter list">
-          <IconButton aria-label="filter list">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
+        <>
+          <Tooltip title="PDF">
+            <IconButton aria-label="filter list">
+              <PictureAsPdf onClick={handleCreatePDF} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Filter list">
+            <IconButton aria-label="filter list">
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+        </>
       )}
     </Toolbar>
   );
@@ -205,6 +263,9 @@ const useStyles = makeStyles(theme => ({
     top: 20,
     width: 1,
   },
+  tablecell: {
+    fontSize: pdfOnlyMode ? '8pt' : '12pt',
+  },
 }));
 
 export default function Tables(props) {
@@ -217,16 +278,17 @@ export default function Tables(props) {
     title,
   } = props;
   // console.log('props -------------', props);
+
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState(headCells[0].id);
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(true);
-  const [rowsPerPage, setRowsPerPage] = React.useState(startRowsPerPage);
+  const [rowsPerPage, setRowsPerPage] = React.useState(
+    !pdfOnlyMode ? startRowsPerPage : rowspage,
+  );
   const [headerKeysInTabel, setHeaderKeysInTabel] = React.useState([]);
-
   // console.log('headerKeysInTabel', headerKeysInTabel);
-  // console.log('orderBy', orderBy);
 
   useEffect(() => {
     const keys = headCells.map(headerCell => {
@@ -279,9 +341,9 @@ export default function Tables(props) {
     setPage(0);
   };
 
-  const handleChangeDense = event => {
-    setDense(event.target.checked);
-  };
+  // const handleChangeDense = event => {
+  //   setDense(event.target.checked);
+  // };
 
   const isSelected = name => selected.indexOf(name) !== -1;
 
@@ -290,104 +352,115 @@ export default function Tables(props) {
 
   return (
     <div className={classes.root}>
-      <Paper className={classes.paper}>
-        <EnhancedTableToolbar title={title} numSelected={selected.length} />
-        <TableContainer>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            size={dense ? 'small' : 'medium'}
-            aria-label="enhanced table"
-          >
-            <EnhancedTableHead
-              classes={classes}
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={tabelArray.length}
-              headCells={headCells}
-              startRowsPerPage={startRowsPerPage}
-            />
-            <TableBody>
-              {stableSort(tabelArray, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
-                  const labelId = `enhanced-table-checkbox-${index}`;
+      <PDFBlock>
+        <div id={pdfOnlyMode ? 'pdf' : ''}>
+          <Paper className={classes.paper}>
+            <EnhancedTableToolbar title={title} numSelected={selected.length} />
+            <TableContainer>
+              <Table
+                stickyHeader
+                className={classes.table}
+                aria-labelledby="tableTitle"
+                size={dense ? 'small' : 'medium'}
+                aria-label="sticky table"
+              >
+                <EnhancedTableHead
+                  classes={classes}
+                  numSelected={selected.length}
+                  order={order}
+                  orderBy={orderBy}
+                  onSelectAllClick={handleSelectAllClick}
+                  onRequestSort={handleRequestSort}
+                  rowCount={tabelArray.length}
+                  headCells={headCells}
+                  startRowsPerPage={startRowsPerPage}
+                />
+                <TableBody>
+                  {stableSort(tabelArray, getComparator(order, orderBy))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row, index) => {
+                      const isItemSelected = isSelected(row.name);
+                      const labelId = `enhanced-table-checkbox-${index}`;
 
-                  // only using values chosen by parent component
-                  let filteredRow = {};
-                  for (const key in row) {
-                    if (Object.hasOwnProperty.call(row, key)) {
-                      if (headerKeysInTabel.includes(key)) {
-                        filteredRow[key] = row[key];
+                      // only using values chosen by parent component
+                      let filteredRow = {};
+                      for (const key in row) {
+                        if (Object.hasOwnProperty.call(row, key)) {
+                          if (headerKeysInTabel.includes(key)) {
+                            filteredRow[key] = row[key];
+                          }
+                        }
                       }
-                    }
-                  }
 
-                  return (
-                    <TableRow
-                      hover
-                      onClick={event =>
-                        handleClick(event, filteredRow[orderBy])
-                      }
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={filteredRow[orderBy]}
-                      selected={isItemSelected}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isItemSelected}
-                          inputProps={{ 'aria-labelledby': labelId }}
-                        />
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                      >
-                        {filteredRow[headerKeysInTabel[0]]}
-                      </TableCell>
-                      {headerKeysInTabel.map(
-                        (key, index) =>
-                          index > 0 && (
-                            <>
-                              <TableCell align="left">
-                                {filteredRow[key]}
-                              </TableCell>
-                            </>
-                          ),
-                      )}
+                      return (
+                        <TableRow
+                          hover
+                          onClick={event =>
+                            handleClick(event, filteredRow[orderBy])
+                          }
+                          role="checkbox"
+                          aria-checked={isItemSelected}
+                          tabIndex={-1}
+                          key={filteredRow[orderBy]}
+                          selected={isItemSelected}
+                        >
+                          {!pdfOnlyMode && (
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                checked={isItemSelected}
+                                inputProps={{ 'aria-labelledby': labelId }}
+                              />
+                            </TableCell>
+                          )}
+                          <TableCell
+                            component="th"
+                            id={labelId}
+                            scope="row"
+                            padding="none"
+                            className={classes.tablecell}
+                          >
+                            {filteredRow[headerKeysInTabel[0]]}
+                          </TableCell>
+                          {headerKeysInTabel.map(
+                            (key, index) =>
+                              index > 0 && (
+                                <>
+                                  <TableCell
+                                    align="left"
+                                    className={classes.tablecell}
+                                  >
+                                    {filteredRow[key]}
+                                  </TableCell>
+                                </>
+                              ),
+                          )}
+                        </TableRow>
+                      );
+                    })}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                      <TableCell colSpan={2} />
                     </TableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                  <TableCell colSpan={2} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={rowsPerPageOptions}
-          component="div"
-          count={tabelArray.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onChangePage={handleChangePage}
-          onChangeRowsPerPage={handleChangeRowsPerPage}
-        />
-      </Paper>
-      {/* <FormControlLabel
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={rowsPerPageOptions}
+              component="div"
+              count={tabelArray.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onChangePage={handleChangePage}
+              onChangeRowsPerPage={handleChangeRowsPerPage}
+            />
+          </Paper>
+          {/* <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}
         label="Tæt tabel"
       /> */}
+        </div>
+      </PDFBlock>
     </div>
   );
 }

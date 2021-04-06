@@ -2,10 +2,9 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import 'dotenv/config';
-// import styled from 'styled-components';
 import Header from './components/Header';
-import { Pdfs } from './components/Pdfs';
-// import { Users } from './screens/Users';
+// import { Pdfs } from './components/Pdfs';
+import { Users } from './screens/Users';
 
 // const Block = styled.div`
 //   background-color: white;
@@ -21,12 +20,17 @@ import { Pdfs } from './components/Pdfs';
 // `;
 
 const App = () => {
+  const url = new URL(window.location.href);
+  const params = new URLSearchParams(url.search);
+  const pdfOnlyMode = params.get('pdfonly');
   return (
-    <div className="App">
-      <Header />
-      {/* <Block>Hejsa</Block> */}
-      {/* <BoldBlock>Hej igen</BoldBlock> */}
-      {/* <Users /> */}
+    <>
+      <div>
+        {!pdfOnlyMode && <Header />}
+        {/* <Block>Hejsa</Block> */}
+        {/* <BoldBlock>Hej igen</BoldBlock> */}
+        <Users />
+      </div>
       <div>
         {/* <iframe
           width="1165"
@@ -34,9 +38,9 @@ const App = () => {
           title="iq96"
           src={process.env.IQ_URL}
         /> */}
+        {/* <Pdfs /> */}
       </div>
-      <Pdfs />
-    </div>
+    </>
   );
 };
 
