@@ -9,6 +9,7 @@ import App from './App';
 import { SERVER_URL } from './constants';
 
 console.log('SERVER_URL', SERVER_URL);
+
 const client = new ApolloClient({
   cache: new InMemoryCache(),
   link: new HttpLink({

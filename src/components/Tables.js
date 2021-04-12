@@ -231,12 +231,12 @@ const EnhancedTableToolbar = props => {
         </Tooltip>
       ) : (
         <>
-          <Tooltip title="PDF">
+          <Tooltip title="Lav en PDF fil af listen">
             <IconButton aria-label="filter list">
               <PictureAsPdf onClick={handleCreatePDF} />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Filter list">
+          <Tooltip title="Filtrér listen">
             <IconButton aria-label="filter list">
               <FilterListIcon />
             </IconButton>

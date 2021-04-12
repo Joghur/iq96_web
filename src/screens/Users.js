@@ -19,6 +19,9 @@ const ALL_USERS = gql`
         phone
         mobile
         address
+        roles {
+          role
+        }
       }
     }
   }
@@ -32,6 +35,7 @@ export const Users = () => {
   const headCells = [
     { id: 'name', numeric: false, disablePadding: false, label: 'Navn' },
     { id: 'username', numeric: false, disablePadding: false, label: 'IQ-navn' },
+    { id: 'role', numeric: false, disablePadding: false, label: 'Rolle' },
     { id: 'address', numeric: false, disablePadding: false, label: 'Adresse' },
     // { id: 'work', numeric: false, disablePadding: false, label: 'Arbejde' },
     { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
@@ -41,7 +45,12 @@ export const Users = () => {
     //   disablePadding: false,
     //   label: 'Arbejds Email',
     // },
-    { id: 'phone', numeric: false, disablePadding: false, label: 'Telefon' },
+    {
+      id: 'phone',
+      numeric: false,
+      disablePadding: false,
+      label: 'Telefon (mobil først)',
+    },
     // { id: 'mobile', numeric: false, disablePadding: false, label: 'Mobil' },
     // {
     //   id: 'workphone',
@@ -75,6 +84,7 @@ export const Users = () => {
         const phones = row.mobile ? row.mobile : row.phone;
         return {
           ...row,
+          role: row.roles.map(item => item.role).join(', '),
           address: row.address.replace(/,/g, ', '),
           phone: removeSpaces(phones),
         };
