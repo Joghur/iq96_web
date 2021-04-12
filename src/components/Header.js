@@ -169,17 +169,7 @@ export default function Header(props) {
 
   return (
     <div>
-      {/* <AppBar position="static"> */}
-      {/* <AppBar position="fixed" className={classes.appBar}> */}
       <Toolbar>
-        {/* <IconButton
-          edge="start"
-          className={classes.menuButton}
-          color="inherit"
-          aria-label="open drawer"
-        >
-          <MenuIcon />
-        </IconButton> */}
         <IconButton
           color="inherit"
           aria-label="open drawer"
@@ -243,7 +233,6 @@ export default function Header(props) {
           </IconButton>
         </div>
       </Toolbar>
-      {/* </AppBar> */}
       {renderMobileMenu}
       {renderMenu}
     </div>

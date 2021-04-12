@@ -17,13 +17,33 @@ import EmailIcon from '@material-ui/icons/Email';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import PeopleIcon from '@material-ui/icons/People';
+import ListSubheader from '@material-ui/core/ListSubheader';
 import Header from './components/Header';
 import { Pdfs } from './components/Pdfs';
 import { Users } from './screens/Users';
 import { SignIn } from './screens/SignIn';
+import { Annals } from './screens/Annals';
+import { Summary } from './screens/Summary';
+import { Song } from './screens/Song';
+import { Laws } from './screens/Laws';
+import { PreviousTours } from './screens/PreviousTours';
+import { Letters } from './screens/Letters';
 import { IFRAME_URL } from './constants';
 
 const drawerWidth = 240;
+const usersMenuItems = [
+  { name: 'Med-Lemmer', to: '/users', icon: <PeopleIcon /> },
+  { name: 'Titler', to: '/titles', icon: <PeopleIcon /> },
+];
+const mediaMenuItems = [{ name: '---', to: '/letters', icon: <EmailIcon /> }];
+const libMenuItems = [
+  { name: 'De hellige Annaler', to: '/annals', icon: <EmailIcon /> },
+  { name: 'GF referat', to: '/summary', icon: <EmailIcon /> },
+  { name: 'IQ Breve', to: '/letters', icon: <EmailIcon /> },
+  { name: 'IQ sangen', to: '/song', icon: <EmailIcon /> },
+  { name: 'Love og Vedtægter', to: '/laws', icon: <EmailIcon /> },
+  { name: 'Tidligere Ture', to: '/previous-tours', icon: <EmailIcon /> },
+];
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -48,8 +68,11 @@ const useStyles = makeStyles(theme => ({
   noAppBar: {
     [theme.breakpoints.up('sm')]: {
       width: '100%',
-      marginLeft: 0,
     },
+  },
+  iframes: {
+    display: 'flex',
+    justifyContent: 'center',
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -86,12 +109,29 @@ function App() {
     <div>
       <div className={classes.toolbar} />
       <Divider />
+      <ListSubheader>Med-Lemmer</ListSubheader>
       <List>
-        {[
-          { name: 'Signin', to: '/signin', icon: <InboxIcon /> },
-          { name: 'Med-Lemmer', to: '/users', icon: <PeopleIcon /> },
-          { name: 'Breve', to: '/letters', icon: <EmailIcon /> },
-        ].map((listObj, index) => (
+        {usersMenuItems.map((listObj, index) => (
+          <ListItem button key={index} component={NavLink} to={listObj.to}>
+            <ListItemIcon>{listObj.icon}</ListItemIcon>
+            <ListItemText primary={listObj.name} />
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <ListSubheader>Bibliotek</ListSubheader>
+      <List>
+        {libMenuItems.map((listObj, index) => (
+          <ListItem button key={index} component={NavLink} to={listObj.to}>
+            <ListItemIcon>{listObj.icon}</ListItemIcon>
+            <ListItemText primary={listObj.name} />
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <ListSubheader>Media</ListSubheader>
+      <List>
+        {mediaMenuItems.map((listObj, index) => (
           <ListItem button key={index} component={NavLink} to={listObj.to}>
             <ListItemIcon>{listObj.icon}</ListItemIcon>
             <ListItemText primary={listObj.name} />
@@ -103,7 +143,11 @@ function App() {
 
   const OldSite = () => {
     return (
-      <iframe width="1165" height="1165" title="iframe" src={IFRAME_URL} />
+      <>
+        <div className={classes.iframes}>
+          <iframe width="1165" height="1165" title="iframe" src={IFRAME_URL} />
+        </div>
+      </>
     );
   };
 
@@ -154,8 +198,13 @@ function App() {
               <Route exact path="/" component={OldSite} />
               <Route path="/users" component={Users} />
               <Route path="/signin" component={SignIn} />
-              <Route path="/letters" component={Pdfs} />
               <Route path="/old_site" component={OldSite} />
+              <Route path="/annals" component={Annals} />
+              <Route path="/summary" component={Summary} />
+              <Route path="/letters" component={Letters} />
+              <Route path="/song" component={Song} />
+              <Route path="/laws" component={Laws} />
+              <Route path="/previous-tours" component={PreviousTours} />
             </main>
           </div>
         </main>
