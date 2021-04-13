@@ -12,7 +12,6 @@ const ALL_BOARDMEM_BERS = gql`
         active
         username
         roles {
-          id
           role
         }
       }
@@ -62,7 +61,6 @@ export const Board = () => {
       });
   }
 
-  console.log('tabelArray --------------', tabelArray);
   if (allBoardUsers.loading) return <div>Henter Bestyrelses Med-Lemmer...</div>;
   if (allBoardUsers.error)
     return <Snackbar severity="error">Kunne ikke hente Bestyrelsen</Snackbar>;

@@ -26,6 +26,7 @@ import SportsKabaddiIcon from '@material-ui/icons/SportsKabaddi';
 import EmojiEventsIcon from '@material-ui/icons/EmojiEvents';
 import Header from './components/Header';
 import { Users } from './screens/Users';
+import { User } from './screens/User';
 import { Board } from './screens/Board';
 import { Titles } from './screens/Titles';
 import { SignIn } from './screens/SignIn';
@@ -209,6 +210,7 @@ function App() {
             <main>
               <Route exact path="/" component={OldSite} />
               <Route path="/users" component={Users} />
+              <Route path="/user/:id" component={User} />
               <Route path="/board" component={Board} />
               <Route path="/titles" component={Titles} />
               <Route path="/signin" component={SignIn} />

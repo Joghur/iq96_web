@@ -35,39 +35,13 @@ export const Users = () => {
     { id: 'username', numeric: false, disablePadding: false, label: 'IQ-navn' },
     { id: 'role', numeric: false, disablePadding: false, label: 'Rolle' },
     { id: 'address', numeric: false, disablePadding: false, label: 'Adresse' },
-    // { id: 'work', numeric: false, disablePadding: false, label: 'Arbejde' },
     { id: 'email', numeric: false, disablePadding: false, label: 'Email' },
-    // {
-    //   id: 'workemail',
-    //   numeric: false,
-    //   disablePadding: false,
-    //   label: 'Arbejds Email',
-    // },
     {
       id: 'phone',
       numeric: false,
       disablePadding: false,
       label: 'Telefon (mobil først)',
     },
-    // { id: 'mobile', numeric: false, disablePadding: false, label: 'Mobil' },
-    // {
-    //   id: 'workphone',
-    //   numeric: false,
-    //   disablePadding: false,
-    //   label: 'Arbejds Telefon',
-    // },
-    // {
-    //   id: 'size',
-    //   numeric: false,
-    //   disablePadding: false,
-    //   label: 'T-shirt størrelse',
-    // },
-    // {
-    //   id: 'birthday',
-    //   numeric: false,
-    //   disablePadding: false,
-    //   label: 'Fødselsdag',
-    // },
   ];
 
   // todo: make it possible to select columns
@@ -101,8 +75,9 @@ export const Users = () => {
           title={'IQ96 Med-Lemmer'}
           tabelArray={tabelArray}
           headCells={headCells}
-          startRowsPerPage={10}
-          rowsPerPageOptions={[10, { value: tabelArray.length, label: 'Alle' }]}
+          startRowsPerPage={tabelArray.length}
+          showPagination={false}
+          // rowsPerPageOptions={[10, { value: tabelArray.length, label: 'Alle' }]}
         />
       )}
     </>

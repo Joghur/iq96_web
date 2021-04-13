@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 /**
- * PLaces snackbar with info on screen
+ * Places snackbar "small alert box" with info on screen
  *
  * @param {*} props severity: error, warning, info, success
  * @returns

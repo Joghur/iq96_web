@@ -12,7 +12,6 @@ const FOR_ALL_TITLES = gql`
         active
         username
         roles {
-          id
           role
         }
       }
@@ -48,7 +47,6 @@ export const Titles = () => {
   let tabelArray;
 
   if (allUsers.data) {
-    console.log('allUsers --------------', allUsers.data);
     tabelArray = allUsers.data.allUsers?.users
       .filter(user => {
         return (
@@ -60,7 +58,6 @@ export const Titles = () => {
         );
       })
       .map(row => {
-        console.log('-----------------------', row);
         return {
           ...row,
           role: row.roles.map((item, index) => {
@@ -72,7 +69,6 @@ export const Titles = () => {
       });
   }
 
-  console.log('tabelArray --------------', tabelArray);
   if (allUsers.loading) return <div>Henter Titler...</div>;
   if (allUsers.error)
     return <Snackbar severity="error">Kunne ikke hente Titler</Snackbar>;

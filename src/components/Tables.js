@@ -27,6 +27,7 @@ import styled from 'styled-components';
 import gql from 'graphql-tag';
 import { SERVER_URL } from '../constants';
 import Snackbar from '../components/Snackbar';
+import { useHistory } from 'react-router-dom';
 
 // getting pdf state and rows in tabel to make sure pdf is written
 // with amount of rows that has been chosen
@@ -168,17 +169,6 @@ const useToolbarStyles = makeStyles(theme => ({
 const EnhancedTableToolbar = props => {
   const classes = useToolbarStyles();
   const { numSelected, title } = props;
-  // const [skipQuery, setSkipQuery] = useState(true);
-  // const [data, setData] = useState();
-
-  // let query loose once when icon is pressed. Query will close after run
-  // let { loading } = useQuery(PDF, {
-  //   skip: skipQuery,
-  //   onCompleted: data => {
-  //     setData(data);
-  //     setSkipQuery(true);
-  //   },
-  // });
 
   const handleCreatePDF = () => {
     console.log('handleCreatePDF');
@@ -190,12 +180,7 @@ const EnhancedTableToolbar = props => {
     // server sent the url to the file!
     // now, let's download:
     window.location.href = response.file;
-    // setSkipQuery(false);
   };
-
-  // console.log('data-table', data);
-
-  // if (loading) return <p> Henter pdf .... </p>;
 
   return (
     <Toolbar
@@ -290,6 +275,8 @@ export default function Tables(props) {
     showPagination = true,
   } = props;
 
+  const history = useHistory();
+
   // check to avoid dev error if table is empty
   if (!tabelArray) {
     return <Snackbar severity="error">Liste er tom</Snackbar>;
@@ -326,7 +313,7 @@ export default function Tables(props) {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
+  const handleClickSelectBox = (event, name) => {
     const selectedIndex = selected.indexOf(name);
     let newSelected = [];
 
@@ -344,6 +331,10 @@ export default function Tables(props) {
     }
 
     setSelected(newSelected);
+  };
+
+  const handleClickCell = (event, name) => {
+    console.log('id', id);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -409,9 +400,6 @@ export default function Tables(props) {
                       return (
                         <TableRow
                           hover
-                          onClick={event =>
-                            handleClick(event, filteredRow[orderBy])
-                          }
                           role="checkbox"
                           aria-checked={isItemSelected}
                           tabIndex={-1}
@@ -423,6 +411,13 @@ export default function Tables(props) {
                               <Checkbox
                                 checked={isItemSelected}
                                 inputProps={{ 'aria-labelledby': labelId }}
+                                onClick={event =>
+                                  handleClickSelectBox(
+                                    event,
+                                    filteredRow[orderBy],
+                                    row['id'],
+                                  )
+                                }
                               />
                             </TableCell>
                           )}
@@ -432,6 +427,7 @@ export default function Tables(props) {
                             scope="row"
                             padding="none"
                             className={classes.tablecell}
+                            onClick={() => history.push('/user/' + row['id'])}
                           >
                             {filteredRow[headerKeysInTabel[0]]}
                           </TableCell>
@@ -442,6 +438,9 @@ export default function Tables(props) {
                                   <TableCell
                                     align="left"
                                     className={classes.tablecell}
+                                    onClick={() =>
+                                      history.push('/user/' + row['id'])
+                                    }
                                   >
                                     {filteredRow[key]}
                                   </TableCell>
