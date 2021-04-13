@@ -14,13 +14,20 @@ import ListItemText from '@material-ui/core/ListItemText';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { BrowserRouter as Router, NavLink, Route } from 'react-router-dom';
 import EmailIcon from '@material-ui/icons/Email';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import PeopleIcon from '@material-ui/icons/People';
+import LibraryMusicIcon from '@material-ui/icons/LibraryMusic';
 import ListSubheader from '@material-ui/core/ListSubheader';
+import SubjectIcon from '@material-ui/icons/Subject';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
+import GavelIcon from '@material-ui/icons/Gavel';
+import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
+import SportsKabaddiIcon from '@material-ui/icons/SportsKabaddi';
+import EmojiEventsIcon from '@material-ui/icons/EmojiEvents';
 import Header from './components/Header';
-import { Pdfs } from './components/Pdfs';
 import { Users } from './screens/Users';
+import { Board } from './screens/Board';
+import { Titles } from './screens/Titles';
 import { SignIn } from './screens/SignIn';
 import { Annals } from './screens/Annals';
 import { Summary } from './screens/Summary';
@@ -33,16 +40,21 @@ import { IFRAME_URL } from './constants';
 const drawerWidth = 240;
 const usersMenuItems = [
   { name: 'Med-Lemmer', to: '/users', icon: <PeopleIcon /> },
-  { name: 'Titler', to: '/titles', icon: <PeopleIcon /> },
+  { name: 'Bestyrelsen', to: '/board', icon: <SportsKabaddiIcon /> },
+  { name: 'Titler', to: '/titles', icon: <EmojiEventsIcon /> },
 ];
 const mediaMenuItems = [{ name: '---', to: '/letters', icon: <EmailIcon /> }];
 const libMenuItems = [
-  { name: 'De hellige Annaler', to: '/annals', icon: <EmailIcon /> },
-  { name: 'GF referat', to: '/summary', icon: <EmailIcon /> },
+  { name: 'De hellige Annaler', to: '/annals', icon: <MenuBookIcon /> },
+  { name: 'GF Referat', to: '/summary', icon: <SubjectIcon /> },
   { name: 'IQ Breve', to: '/letters', icon: <EmailIcon /> },
-  { name: 'IQ sangen', to: '/song', icon: <EmailIcon /> },
-  { name: 'Love og Vedtægter', to: '/laws', icon: <EmailIcon /> },
-  { name: 'Tidligere Ture', to: '/previous-tours', icon: <EmailIcon /> },
+  { name: 'IQ Sangen', to: '/song', icon: <LibraryMusicIcon /> },
+  { name: 'Love og Vedtægter', to: '/laws', icon: <GavelIcon /> },
+  {
+    name: 'Tidligere Ture',
+    to: '/previous-tours',
+    icon: <AirplanemodeActiveIcon />,
+  },
 ];
 
 const useStyles = makeStyles(theme => ({
@@ -197,6 +209,8 @@ function App() {
             <main>
               <Route exact path="/" component={OldSite} />
               <Route path="/users" component={Users} />
+              <Route path="/board" component={Board} />
+              <Route path="/titles" component={Titles} />
               <Route path="/signin" component={SignIn} />
               <Route path="/old_site" component={OldSite} />
               <Route path="/annals" component={Annals} />

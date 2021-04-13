@@ -24,9 +24,9 @@ import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { useQuery } from '@apollo/client';
 import gql from 'graphql-tag';
 import { SERVER_URL } from '../constants';
+import Snackbar from '../components/Snackbar';
 
 // getting pdf state and rows in tabel to make sure pdf is written
 // with amount of rows that has been chosen
@@ -287,9 +287,13 @@ export default function Tables(props) {
     startRowsPerPage,
     rowsPerPageOptions,
     title,
+    showPagination = true,
   } = props;
-  // console.log('props -------------', props);
 
+  // check to avoid dev error if table is empty
+  if (!tabelArray) {
+    return <Snackbar severity="error">Liste er tom</Snackbar>;
+  }
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState(headCells[0].id);
   const [selected, setSelected] = React.useState([]);
@@ -299,7 +303,6 @@ export default function Tables(props) {
     !pdfOnlyMode ? startRowsPerPage : rowspage,
   );
   const [headerKeysInTabel, setHeaderKeysInTabel] = React.useState([]);
-  // console.log('headerKeysInTabel', headerKeysInTabel);
 
   useEffect(() => {
     const keys = headCells.map(headerCell => {
@@ -456,15 +459,17 @@ export default function Tables(props) {
                 </TableBody>
               </Table>
             </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={rowsPerPageOptions}
-              component="div"
-              count={tabelArray.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
+            {showPagination && (
+              <TablePagination
+                rowsPerPageOptions={rowsPerPageOptions}
+                component="div"
+                count={tabelArray.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onChangePage={handleChangePage}
+                onChangeRowsPerPage={handleChangeRowsPerPage}
+              />
+            )}
           </Paper>
           {/* <FormControlLabel
         control={<Switch checked={dense} onChange={handleChangeDense} />}

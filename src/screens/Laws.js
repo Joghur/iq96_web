@@ -14,7 +14,7 @@ export const Laws = () => {
 
   return (
     <div className={classes.root}>
-      <Paper elevation={1}>
+      <Paper elevation={3}>
         <Typography variant="h4" gutterBottom>
           Love og Vedtægter
         </Typography>

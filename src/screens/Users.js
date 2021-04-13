@@ -2,10 +2,8 @@ import { useState } from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
 import Table from '../components/Tables';
-import { dateEpochToDateString } from '../utils/dates';
 import { removeSpaces } from '../utils/strings';
-import { PDFViewer } from '@react-pdf/renderer';
-// import './App.css';
+import Snackbar from '../components/Snackbar';
 
 const ALL_USERS = gql`
   query allUsers {
@@ -75,7 +73,6 @@ export const Users = () => {
   // todo: make it possible to select columns
   let tabelArray;
   if (allUsers.data) {
-    // console.log('data --------------', data);
     tabelArray = allUsers.data.allUsers?.users
       .filter(user => {
         return user.active;
@@ -89,20 +86,14 @@ export const Users = () => {
           phone: removeSpaces(phones),
         };
       });
-    // .map(row => {
-    //   return {
-    //     ...row,
-    //     address: row.address.replace(/,/g, ', '),
-    //     phone: removeSpaces(row.phone),
-    //     mobile: removeSpaces(row.mobile),
-    //     workphone: removeSpaces(row.workphone),
-    //     birthday: dateEpochToDateString(row.birthday, 'YYYY/MM/DD'),
-    //   };
-    // });
   }
 
   if (allUsers.loading) return <div>Henter Med-Lemmer...</div>;
-  if (allUsers.error) return <div>`Fejl! ${allUsers.error.message} `</div>;
+  if (allUsers.error)
+    return (
+      <Snackbar severity="error">Kunne ikke hente Med-Lems liste</Snackbar>
+    );
+
   return (
     <>
       {allUsers.data && (
@@ -111,7 +102,7 @@ export const Users = () => {
           tabelArray={tabelArray}
           headCells={headCells}
           startRowsPerPage={10}
-          rowsPerPageOptions={[10, 25]}
+          rowsPerPageOptions={[10, { value: tabelArray.length, label: 'Alle' }]}
         />
       )}
     </>
