@@ -209,10 +209,8 @@ const EnhancedTableToolbar = props => {
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete">
-            <DeleteIcon />
-          </IconButton>
+        <Tooltip title="Slet">
+          <IconButton aria-label="delete">{/* <DeleteIcon /> */}</IconButton>
         </Tooltip>
       ) : (
         <>
@@ -398,56 +396,58 @@ export default function Tables(props) {
                       }
 
                       return (
-                        <TableRow
-                          hover
-                          role="checkbox"
-                          aria-checked={isItemSelected}
-                          tabIndex={-1}
-                          key={filteredRow[orderBy]}
-                          selected={isItemSelected}
-                        >
-                          {!pdfOnlyMode && (
-                            <TableCell padding="checkbox">
-                              <Checkbox
-                                checked={isItemSelected}
-                                inputProps={{ 'aria-labelledby': labelId }}
-                                onClick={event =>
-                                  handleClickSelectBox(
-                                    event,
-                                    filteredRow[orderBy],
-                                    row['id'],
-                                  )
-                                }
-                              />
-                            </TableCell>
-                          )}
-                          <TableCell
-                            component="th"
-                            id={labelId}
-                            scope="row"
-                            padding="none"
-                            className={classes.tablecell}
-                            onClick={() => history.push('/user/' + row['id'])}
+                        <Tooltip title="Tryk på et navn for at se detaljer">
+                          <TableRow
+                            hover
+                            role="checkbox"
+                            aria-checked={isItemSelected}
+                            tabIndex={-1}
+                            key={filteredRow[orderBy]}
+                            selected={isItemSelected}
                           >
-                            {filteredRow[headerKeysInTabel[0]]}
-                          </TableCell>
-                          {headerKeysInTabel.map(
-                            (key, index) =>
-                              index > 0 && (
-                                <>
-                                  <TableCell
-                                    align="left"
-                                    className={classes.tablecell}
-                                    onClick={() =>
-                                      history.push('/user/' + row['id'])
-                                    }
-                                  >
-                                    {filteredRow[key]}
-                                  </TableCell>
-                                </>
-                              ),
-                          )}
-                        </TableRow>
+                            {!pdfOnlyMode && (
+                              <TableCell padding="checkbox">
+                                <Checkbox
+                                  checked={isItemSelected}
+                                  inputProps={{ 'aria-labelledby': labelId }}
+                                  onClick={event =>
+                                    handleClickSelectBox(
+                                      event,
+                                      filteredRow[orderBy],
+                                      row['id'],
+                                    )
+                                  }
+                                />
+                              </TableCell>
+                            )}
+                            <TableCell
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="none"
+                              className={classes.tablecell}
+                              onClick={() => history.push('/user/' + row['id'])}
+                            >
+                              {filteredRow[headerKeysInTabel[0]]}
+                            </TableCell>
+                            {headerKeysInTabel.map(
+                              (key, index) =>
+                                index > 0 && (
+                                  <>
+                                    <TableCell
+                                      align="left"
+                                      className={classes.tablecell}
+                                      onClick={() =>
+                                        history.push('/user/' + row['id'])
+                                      }
+                                    >
+                                      {filteredRow[key]}
+                                    </TableCell>
+                                  </>
+                                ),
+                            )}
+                          </TableRow>
+                        </Tooltip>
                       );
                     })}
                   {emptyRows > 0 && (

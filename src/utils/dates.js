@@ -30,13 +30,18 @@ export const dateEpochToDateString = (
  * TODO: Needs testing
  *
  * @param {string} epoc
- * @returns Date
+ * @returns Date format dd/mm-yyyy
  */
 export const dateStringToEpoch = dateString => {
+  console.log('dateString', dateString);
+  const day = dateString.split('/')[0];
+  const month = dateString.split('/')[1].split('-')[0];
+  const year = dateString.split('/')[1].split('-')[1];
   try {
-    let date = new Date(dateString);
+    let date = new Date(year, month, day);
+    console.log('date', date);
     const millis = date.getMilliseconds();
-    // console.log('millis', millis);
+    console.log('millis', millis);
     return millis;
   } catch (error) {
     alert('Der er sket en dato fejl');
