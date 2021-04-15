@@ -1,6 +1,7 @@
 import moment from 'moment';
 // import 'moment/locale/da';
 moment.locale('da');
+import { parse } from 'date-fns';
 
 /**
  *
@@ -16,6 +17,11 @@ export const dateEpochToDateString = (
   try {
     let date = new Date(0);
     date.setUTCMilliseconds(Number(epochDateString));
+    console.log('epochDateString', epochDateString);
+    console.log(
+      'moment(date).local().format(format);',
+      moment(date).local().format(format),
+    );
     return moment(date).local().format(format);
   } catch (error) {
     alert('Der er sket en dato fejl');
@@ -30,19 +36,14 @@ export const dateEpochToDateString = (
  * TODO: Needs testing
  *
  * @param {string} epoc
- * @returns Date format dd/mm-yyyy
+ * @returns Date format Default format: d/M-y - >13/2-2015
  */
-export const dateStringToEpoch = dateString => {
-  console.log('dateString', dateString);
-  const day = dateString.split('/')[0];
-  const month = dateString.split('/')[1].split('-')[0];
-  const year = dateString.split('/')[1].split('-')[1];
+export const dateStringToEpoch = (dateString, format = 'd/M-y') => {
+  let date;
   try {
-    let date = new Date(year, month, day);
-    console.log('date', date);
-    const millis = date.getMilliseconds();
-    console.log('millis', millis);
-    return millis;
+    date = parse(dateString, format, new Date());
+    const millis = date.getTime();
+    return millis.toString();
   } catch (error) {
     alert('Der er sket en dato fejl');
   }

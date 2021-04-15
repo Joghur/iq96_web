@@ -104,8 +104,7 @@ export const User = () => {
 
   const [user, setUser] = useState();
   // const [roles, setRoles] = useState([]);
-  const [roles, setRoles] = useState([]);
-  const [dateBirthday, setDateBirthday] = useState();
+  // const [roles, setRoles] = useState([]);
   const [didChange, setDidChange] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState({});
@@ -113,12 +112,6 @@ export const User = () => {
   useEffect(() => {
     setUser(userQuery.data?.user?.user);
   }, [userQuery]);
-
-  useEffect(() => {
-    setDateBirthday(
-      dateEpochToDateString(userQuery.data?.user?.user?.birthday, 'DD/MM-YYYY'),
-    );
-  }, []);
 
   // useEffect(() => {
   //   setRoles(
@@ -142,8 +135,7 @@ export const User = () => {
   //   'rolesQuery?.data?.allRoles?.roles',
   //   rolesQuery?.data?.allRoles?.roles,
   // );
-  console.log('user.workphone', user?.workphone);
-  // console.log('dateBirthday', dateBirthday);
+  console.log('user', user);
   console.log('error', error);
   console.log('errorMessage', errorMessage);
 
@@ -154,16 +146,18 @@ export const User = () => {
     let value = event?.target?.value;
     let name = event?.target?.name;
 
-    // console.log('event?.target', event?.target);
-    // console.log('changedValue', changedValue);
+    // console.log('event', event);
+    // console.log(' typeof event', typeof event);
+    // console.log('event?.constructor?.name', event?.constructor?.name);
+    // console.log('secondParam', secondParam);
     // console.log('typeof changedValue', typeof changedValue);
 
     // From select titles comes an array (roles) and id is something like
     // roles-option-1. We only need roles text for the key in "user".
     // From t-shirt size comes an object with key "value"
     if (secondParam && typeof secondParam === 'object') {
-      console.log('changedValue?.value', secondParam?.props?.value);
-      console.log('changedValue?.value', secondParam);
+      // console.log('changedValue?.value', secondParam?.props?.value);
+      // console.log('changedValue?.value', secondParam);
       if (name) {
         id = name; // this input control uses name instead of id
         value = secondParam.props?.value;
@@ -173,19 +167,18 @@ export const User = () => {
       }
     }
 
-    // console.log('value1', value);
-
     // birthday needs converting from date to epoch milliseconds
-    if (id === 'birthday') {
-      setDateBirthday(value);
-      console.log('dateStringToEpoch(value)', dateStringToEpoch(value));
-      value = dateStringToEpoch(value);
+    // event is a Date object and secondParam is date in string format chosen by Datepicker
+    if (event?.constructor?.name === 'Date') {
+      id = 'birthday';
+      // console.log('dateStringToEpoch(value)', dateStringToEpoch(secondParam));
+      value = dateStringToEpoch(secondParam);
     }
 
     const validated = validate(id, value);
 
-    console.log('id', id);
-    console.log('validated', validated);
+    // console.log('id', id);
+    // console.log('validated', validated);
 
     // if something is not validated exit function and set error states
     if (validated.errorMessage) {
@@ -208,7 +201,7 @@ export const User = () => {
   return (
     <div>
       <BackButton />
-      {/* {didChange && <p>Changed</p>} */}
+      {didChange && <p>Changed</p>}
       {user && (
         <div className={classes.root}>
           <div>
@@ -245,19 +238,6 @@ export const User = () => {
               variant="outlined"
               helperText={errorMessage.address && errorMessage.address}
             />
-            {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <KeyboardDatePicker
-                id="birthday"
-                label="Vælg fødseldag"
-                format="dd/MM-yyyy"
-                margin="dense"
-                value={dateEpochToDateString(user.birthday, 'DD/MM-YYYY')}
-                onChange={handleChange}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date',
-                }}
-              />
-            </MuiPickersUtilsProvider> */}
             <TextField
               id="email"
               label="Email"
@@ -324,17 +304,24 @@ export const User = () => {
               variant="outlined"
               helperText={errorMessage.work && errorMessage.work}
             />
-            <TextField
-              id="birthday"
-              label="Fødselsdag"
-              value={dateBirthday}
-              error={!!errorMessage.birthday}
-              className={classes.textField}
-              margin="dense"
-              onChange={handleChange}
-              variant="outlined"
-              helperText={errorMessage.birthday && errorMessage.birthday}
-            />
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <KeyboardDatePicker
+                id="birthday"
+                label="Vælg fødseldag"
+                format="d/M-y"
+                margin="dense"
+                variant="inline"
+                inputVariant="outlined"
+                className={classes.textField}
+                value={dateEpochToDateString(user.birthday)}
+                initialFocusedDate="1970-1-1"
+                onChange={handleChange}
+                animateYearScrolling
+                KeyboardButtonProps={{
+                  'aria-label': 'change date',
+                }}
+              />
+            </MuiPickersUtilsProvider>
             <FormControl
               name="size"
               variant="outlined"
@@ -345,8 +332,6 @@ export const User = () => {
               <InputLabel>T-Shirt størrelse</InputLabel>
               <Select
                 name="size"
-                labelId="demo-simple-select-outlined-label"
-                id="demo-simple-select-outlined"
                 value={user.size}
                 onChange={handleChange}
                 label="Størrelse"
