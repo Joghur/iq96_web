@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
-import Snackbar from '../components/Snackbar';
-import { dateEpochToDateString, dateStringToEpoch } from '../utils/dates';
+import Snackbar from '../../components/Snackbar';
+import { dateEpochToDateString, dateStringToEpoch } from '../../utils/dates';
 import {
   TextField,
   Tooltip,
@@ -15,12 +15,11 @@ import {
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { BackButton } from '../components/BackButton';
+import { BackButton } from '../../components/BackButton';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import { KeyboardDatePicker } from '@material-ui/pickers';
-import validate from '../utils/validate';
-// import validate from '../utils/validate';
+import validate from '../../utils/validate';
 
 const useStyles = makeStyles(theme => ({
   root: {

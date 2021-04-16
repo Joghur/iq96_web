@@ -1,4 +1,4 @@
-import { Pdfs } from '../components/Pdfs';
+import { Pdfs } from '../../components/Pdfs';
 import Button from '@material-ui/core/Button';
 import MusicNoteIcon from '@material-ui/icons/MusicNote';
 import { makeStyles } from '@material-ui/core/styles';

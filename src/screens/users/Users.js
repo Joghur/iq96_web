@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
-import Table from '../components/Tables';
-import { removeSpaces } from '../utils/strings';
-import Snackbar from '../components/Snackbar';
+import Table from '../../components/Tables';
+import { removeSpaces } from '../../utils/strings';
+import Snackbar from '../../components/Snackbar';
 
 const ALL_USERS = gql`
   query allUsers {

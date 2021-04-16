@@ -7,14 +7,18 @@ const useStyles = makeStyles({
     width: '100%',
     maxWidth: 700,
   },
+  paper: { padding: 15 },
 });
 
+/**
+ * todo: make page PDF'able
+ */
 export const Laws = () => {
   const classes = useStyles();
 
   return (
     <div className={classes.root}>
-      <Paper elevation={3}>
+      <Paper className={classes.paper} elevation={3}>
         <Typography variant="h4" gutterBottom>
           Love og Vedtægter
         </Typography>
@@ -53,11 +57,11 @@ export const Laws = () => {
         <Typography variant="body1" gutterBottom>
           Ledelsen af foreningen består af følgende personer der vælges på den
           årlige generalforsamling:
-          <ul>
-            <li>Formand og kasserer er på valg i lige år.</li>
-            <li>Næstformand og menigt bestyrelsesmedlem vælges i ulige år.</li>
-          </ul>
         </Typography>
+        <ul>
+          <li>Formand og kasserer er på valg i lige år.</li>
+          <li>Næstformand og menigt bestyrelsesmedlem vælges i ulige år.</li>
+        </ul>
         <Typography variant="body1" gutterBottom>
           For at besætte en bestyrelsespost skal man have stemmeret.
         </Typography>
