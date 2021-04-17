@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
 import Table from '../../components/Tables';
@@ -30,6 +30,11 @@ export const Users = () => {
     fetchPolicy: 'cache-first',
   });
   const [active, setActive] = useState(true);
+
+  useEffect(() => {
+    allUsers.refetch();
+  }, []);
+
   const headCells = [
     { id: 'name', numeric: false, disablePadding: false, label: 'Navn' },
     { id: 'username', numeric: false, disablePadding: false, label: 'IQ-navn' },

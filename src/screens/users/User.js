@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import gql from 'graphql-tag';
-import { useQuery } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import Snackbar from '../../components/Snackbar';
 import { dateEpochToDateString, dateStringToEpoch } from '../../utils/dates';
 import {
@@ -11,10 +11,13 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Button,
+  Switch,
+  FormControlLabel,
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useHistory } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { BackButton } from '../../components/BackButton';
 import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
@@ -45,6 +48,59 @@ const useStyles = makeStyles(theme => ({
     },
   },
 }));
+
+const IOSSwitch = withStyles(theme => ({
+  root: {
+    width: 42,
+    height: 26,
+    padding: 0,
+    margin: theme.spacing(1),
+  },
+  switchBase: {
+    padding: 1,
+    '&$checked': {
+      transform: 'translateX(16px)',
+      color: theme.palette.common.white,
+      '& + $track': {
+        backgroundColor: '#52d869',
+        opacity: 1,
+        border: 'none',
+      },
+    },
+    '&$focusVisible $thumb': {
+      color: '#52d869',
+      border: '6px solid #fff',
+    },
+  },
+  thumb: {
+    width: 24,
+    height: 24,
+  },
+  track: {
+    borderRadius: 26 / 2,
+    border: `1px solid ${theme.palette.grey[400]}`,
+    backgroundColor: theme.palette.grey[50],
+    opacity: 1,
+    transition: theme.transitions.create(['background-color', 'border']),
+  },
+  checked: {},
+  focusVisible: {},
+}))(({ classes, ...props }) => {
+  return (
+    <Switch
+      focusVisibleClassName={classes.focusVisible}
+      disableRipple
+      classes={{
+        root: classes.root,
+        switchBase: classes.switchBase,
+        thumb: classes.thumb,
+        track: classes.track,
+        checked: classes.checked,
+      }}
+      {...props}
+    />
+  );
+});
 
 const USER = gql`
   query user($id: Int!) {
@@ -87,6 +143,42 @@ const ROLES = gql`
   }
 `;
 
+const UPDATE_USER = gql`
+  mutation updateUser(
+    $id: Int!
+    $active: Boolean!
+    $name: String!
+    $username: String!
+    $birthday: String!
+    $address: String!
+    $email: String!
+    $phone: String!
+    $mobile: String!
+    $work: String!
+    $workemail: String!
+    $workphone: String!
+    $size: String!
+  ) {
+    updateUser(
+      id: $id
+      active: $active
+      name: $name
+      username: $username
+      birthday: $birthday
+      address: $address
+      email: $email
+      phone: $phone
+      mobile: $mobile
+      work: $work
+      workemail: $workemail
+      workphone: $workphone
+      size: $size
+    ) {
+      id
+    }
+  }
+`;
+
 export const User = () => {
   const classes = useStyles();
   let { id } = useParams();
@@ -100,10 +192,9 @@ export const User = () => {
   const rolesQuery = useQuery(ROLES, {
     fetchPolicy: 'cache-first',
   });
+  const [updateUser, { data }] = useMutation(UPDATE_USER);
 
   const [user, setUser] = useState();
-  // const [roles, setRoles] = useState([]);
-  // const [roles, setRoles] = useState([]);
   const [didChange, setDidChange] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState({});
@@ -112,13 +203,9 @@ export const User = () => {
     setUser(userQuery.data?.user?.user);
   }, [userQuery]);
 
-  // useEffect(() => {
-  //   setRoles(
-  //     rolesQuery?.data?.allRoles?.roles.map(item => {
-  //       return item.role;
-  //     }),
-  //   );
-  // }, [rolesQuery]);
+  useEffect(() => {
+    userQuery.refetch();
+  }, []);
 
   if (userQuery.loading) return <div>Henter Med-Lem...</div>;
   if (userQuery.error)
@@ -130,13 +217,10 @@ export const User = () => {
   if (userQuery.data?.user?.errors)
     return <Snackbar severity="error">Kunne ikke finde Med-Lem</Snackbar>;
 
-  // console.log(
-  //   'rolesQuery?.data?.allRoles?.roles',
-  //   rolesQuery?.data?.allRoles?.roles,
-  // );
   console.log('user', user);
-  console.log('error', error);
-  console.log('errorMessage', errorMessage);
+  // console.log('data', data?.updateUser?.id);
+  // console.log('error', error);
+  // console.log('errorMessage', errorMessage);
 
   // Handles all changes
   const handleChange = (event, secondParam) => {
@@ -144,19 +228,24 @@ export const User = () => {
     let id = event?.target?.id;
     let value = event?.target?.value;
     let name = event?.target?.name;
+    let checked = event?.target?.checked;
 
-    // console.log('event', event);
+    console.log('event', event);
+    console.log('event.target', event?.target);
+    console.log('id', id);
+    console.log('checked', checked);
+    console.log('name', name);
     // console.log(' typeof event', typeof event);
     // console.log('event?.constructor?.name', event?.constructor?.name);
-    // console.log('secondParam', secondParam);
-    // console.log('typeof changedValue', typeof changedValue);
+    console.log('secondParam', secondParam);
+    // console.log('typeof secondParam', typeof secondParam);
+    // console.log('secondParam?.value', secondParam?.props?.value);
+    // console.log('secondParam?.value', secondParam);
 
     // From select titles comes an array (roles) and id is something like
     // roles-option-1. We only need roles text for the key in "user".
     // From t-shirt size comes an object with key "value"
     if (secondParam && typeof secondParam === 'object') {
-      // console.log('changedValue?.value', secondParam?.props?.value);
-      // console.log('changedValue?.value', secondParam);
       if (name) {
         id = name; // this input control uses name instead of id
         value = secondParam.props?.value;
@@ -174,10 +263,15 @@ export const User = () => {
       value = dateStringToEpoch(secondParam);
     }
 
+    // active member switch
+    if (name === 'active') {
+      id = name;
+      value = checked;
+    }
+
     const validated = validate(id, value);
 
-    // console.log('id', id);
-    // console.log('validated', validated);
+    console.log('validated', validated);
 
     // if something is not validated exit function and set error states
     if (validated.errorMessage) {
@@ -200,10 +294,49 @@ export const User = () => {
   return (
     <div>
       <BackButton />
-      {didChange && <p>Changed</p>}
+      <Button
+        variant="contained"
+        style={{ marginLeft: 10 }}
+        onClick={e => {
+          e.preventDefault();
+          updateUser({
+            variables: {
+              id: user.id,
+              active: user.active,
+              name: user.name,
+              username: user.username,
+              birthday: dateEpochToDateString(user.birthday, 'yyyy-MM-DD'),
+              address: user.address,
+              email: user.email,
+              phone: user.phone,
+              mobile: user.mobile,
+              work: user.work,
+              workemail: user.workemail,
+              workphone: user.workphone,
+              size: user.size,
+              // roles: user.roles.map(role => role.id),
+            },
+          });
+          history.goBack();
+        }}
+      >
+        Opdatér
+      </Button>
       {user && (
         <div className={classes.root}>
           <div>
+            <div>
+              <FormControlLabel
+                control={
+                  <IOSSwitch
+                    checked={user.active}
+                    onChange={handleChange}
+                    name="active"
+                  />
+                }
+                label="Nuværende Med-Lem"
+              />
+            </div>
             <TextField
               id="name"
               label="Navn"

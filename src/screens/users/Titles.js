@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
 import Table from '../../components/Tables';
@@ -20,10 +20,15 @@ const FOR_ALL_TITLES = gql`
 `;
 
 export const Titles = () => {
-  const allUsers = useQuery(FOR_ALL_TITLES, {
+  const allTitledUsers = useQuery(FOR_ALL_TITLES, {
     fetchPolicy: 'cache-first',
   });
   const [active, setActive] = useState(true);
+
+  useEffect(() => {
+    allTitledUsers.refetch();
+  }, []);
+
   const headCells = [
     {
       id: 'role',
@@ -46,8 +51,8 @@ export const Titles = () => {
   ];
   let tabelArray;
 
-  if (allUsers.data) {
-    tabelArray = allUsers.data.allUsers?.users
+  if (allTitledUsers.data) {
+    tabelArray = allTitledUsers.data.allUsers?.users
       .filter(user => {
         return (
           user.active &&
@@ -69,13 +74,13 @@ export const Titles = () => {
       });
   }
 
-  if (allUsers.loading) return <div>Henter Titler...</div>;
-  if (allUsers.error)
+  if (allTitledUsers.loading) return <div>Henter Titler...</div>;
+  if (allTitledUsers.error)
     return <Snackbar severity="error">Kunne ikke hente Titler</Snackbar>;
 
   return (
     <>
-      {allUsers.data && (
+      {allTitledUsers.data && (
         <Table
           title={'Valgbare Titler'}
           tabelArray={tabelArray}

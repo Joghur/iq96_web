@@ -17,11 +17,6 @@ export const dateEpochToDateString = (
   try {
     let date = new Date(0);
     date.setUTCMilliseconds(Number(epochDateString));
-    console.log('epochDateString', epochDateString);
-    console.log(
-      'moment(date).local().format(format);',
-      moment(date).local().format(format),
-    );
     return moment(date).local().format(format);
   } catch (error) {
     alert('Der er sket en dato fejl');

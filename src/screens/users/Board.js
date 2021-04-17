@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
 import Table from '../../components/Tables';
@@ -24,6 +24,11 @@ export const Board = () => {
     fetchPolicy: 'cache-first',
   });
   const [active, setActive] = useState(true);
+
+  useEffect(() => {
+    allBoardUsers.refetch();
+  }, []);
+
   const headCells = [
     {
       id: 'role',

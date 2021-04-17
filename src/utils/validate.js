@@ -35,6 +35,7 @@ export default (id, value) => {
       ok = true;
       break;
 
+    case 'active':
     case 'size':
     case 'roles':
       ok = true;
