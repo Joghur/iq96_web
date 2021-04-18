@@ -171,6 +171,7 @@ const UPDATE_USER = gql`
     $workemail: String!
     $workphone: String!
     $size: String!
+    $roles: [Int!]!
   ) {
     updateUser(
       id: $id
@@ -186,6 +187,7 @@ const UPDATE_USER = gql`
       workemail: $workemail
       workphone: $workphone
       size: $size
+      roles: $roles
     ) {
       id
     }
@@ -317,17 +319,56 @@ export const User = () => {
     <div>
       <div>
         <BackButton />
-        <Button
-          variant="contained"
-          color="primary"
-          style={{ marginLeft: 10 }}
-          onClick={e => {
-            e.preventDefault();
-            setOpenDialog(true);
-          }}
-        >
-          Fjern
-        </Button>
+        {didChange && (
+          <Tooltip title="Gem rettelser">
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ marginLeft: 10 }}
+              onClick={e => {
+                e.preventDefault();
+                updateUser({
+                  variables: {
+                    id: user.id,
+                    active: user.active,
+                    name: user.name,
+                    username: user.username,
+                    birthday: dateEpochToDateString(
+                      user.birthday,
+                      'yyyy-MM-DD',
+                    ),
+                    address: user.address,
+                    email: user.email,
+                    phone: user.phone,
+                    mobile: user.mobile,
+                    work: user.work,
+                    workemail: user.workemail,
+                    workphone: user.workphone,
+                    size: user.size,
+                    roles: user.roles.map(role => role.id),
+                  },
+                });
+                history.goBack();
+              }}
+            >
+              Opdatér
+            </Button>
+          </Tooltip>
+        )}
+        <Tooltip title="Tryk kun på denne knap hvis du vil slette en bruger der er oprettet ved en fejl eller under test. Du får een mulighed mere for at fortryde hvis du trykker">
+          <Button
+            variant="contained"
+            color="secondary"
+            size="small"
+            style={{ marginLeft: 10 }}
+            onClick={e => {
+              e.preventDefault();
+              setOpenDialog(true);
+            }}
+          >
+            Fjern
+          </Button>
+        </Tooltip>
         <Dialog
           open={openDialog}
           TransitionComponent={Transition}
@@ -369,52 +410,23 @@ export const User = () => {
             </Button>
           </DialogActions>
         </Dialog>
-        {didChange && (
-          <Button
-            variant="contained"
-            color="primary"
-            style={{ marginLeft: 10 }}
-            onClick={e => {
-              e.preventDefault();
-              updateUser({
-                variables: {
-                  id: user.id,
-                  active: user.active,
-                  name: user.name,
-                  username: user.username,
-                  birthday: dateEpochToDateString(user.birthday, 'yyyy-MM-DD'),
-                  address: user.address,
-                  email: user.email,
-                  phone: user.phone,
-                  mobile: user.mobile,
-                  work: user.work,
-                  workemail: user.workemail,
-                  workphone: user.workphone,
-                  size: user.size,
-                  // roles: user.roles.map(role => role.id),
-                },
-              });
-              history.goBack();
-            }}
-          >
-            Opdatér
-          </Button>
-        )}
       </div>
       {user && (
         <div className={classes.root}>
           <div>
             <div>
-              <FormControlLabel
-                control={
-                  <IOSSwitch
-                    checked={user.active}
-                    onChange={handleChange}
-                    name="active"
-                  />
-                }
-                label="Nuværende Med-Lem"
-              />
+              <Tooltip title="Gør et eks Med-Lem inaktiv ved at benytte denne kontakt">
+                <FormControlLabel
+                  control={
+                    <IOSSwitch
+                      checked={user.active}
+                      onChange={handleChange}
+                      name="active"
+                    />
+                  }
+                  label="Nuværende Med-Lem"
+                />
+              </Tooltip>
             </div>
             <TextField
               id="name"
@@ -518,7 +530,7 @@ export const User = () => {
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
                 id="birthday"
-                label="Vælg fødseldag"
+                label="Fødseldag"
                 format="d/M-y"
                 margin="dense"
                 variant="inline"
@@ -550,7 +562,6 @@ export const User = () => {
                 <MenuItem value="">
                   <em>Ingen</em>
                 </MenuItem>
-                <MenuItem value={'S'}>S</MenuItem>
                 <MenuItem value={'M'}>M</MenuItem>
                 <MenuItem value={'L'}>L</MenuItem>
                 <MenuItem value={'XL'}>XL</MenuItem>
