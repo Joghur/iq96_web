@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from '@apollo/client';
@@ -14,6 +14,12 @@ import {
   Button,
   Switch,
   FormControlLabel,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Slide,
 } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { useHistory } from 'react-router-dom';
@@ -29,6 +35,9 @@ const useStyles = makeStyles(theme => ({
     marginTop: '10px',
     display: 'flex',
     flexWrap: 'wrap',
+  },
+  errorColor: {
+    color: 'red',
   },
   textField: {
     marginLeft: theme.spacing(1),
@@ -48,6 +57,10 @@ const useStyles = makeStyles(theme => ({
     },
   },
 }));
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const IOSSwitch = withStyles(theme => ({
   root: {
@@ -179,6 +192,12 @@ const UPDATE_USER = gql`
   }
 `;
 
+const DELETE_USER = gql`
+  mutation deleteUser($id: Int!) {
+    deleteUser(id: $id)
+  }
+`;
+
 export const User = () => {
   const classes = useStyles();
   let { id } = useParams();
@@ -193,11 +212,13 @@ export const User = () => {
     fetchPolicy: 'cache-first',
   });
   const [updateUser, { data }] = useMutation(UPDATE_USER);
+  const [deleteUser] = useMutation(DELETE_USER);
 
   const [user, setUser] = useState();
   const [didChange, setDidChange] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState({});
+  const [openDialog, setOpenDialog] = React.useState(false);
 
   useEffect(() => {
     setUser(userQuery.data?.user?.user);
@@ -221,6 +242,7 @@ export const User = () => {
   // console.log('data', data?.updateUser?.id);
   // console.log('error', error);
   // console.log('errorMessage', errorMessage);
+  console.log('deleteUser.data', deleteUser.data);
 
   // Handles all changes
   const handleChange = (event, secondParam) => {
@@ -293,35 +315,92 @@ export const User = () => {
 
   return (
     <div>
-      <BackButton />
-      <Button
-        variant="contained"
-        style={{ marginLeft: 10 }}
-        onClick={e => {
-          e.preventDefault();
-          updateUser({
-            variables: {
-              id: user.id,
-              active: user.active,
-              name: user.name,
-              username: user.username,
-              birthday: dateEpochToDateString(user.birthday, 'yyyy-MM-DD'),
-              address: user.address,
-              email: user.email,
-              phone: user.phone,
-              mobile: user.mobile,
-              work: user.work,
-              workemail: user.workemail,
-              workphone: user.workphone,
-              size: user.size,
-              // roles: user.roles.map(role => role.id),
-            },
-          });
-          history.goBack();
-        }}
-      >
-        Opdatér
-      </Button>
+      <div>
+        <BackButton />
+        <Button
+          variant="contained"
+          color="primary"
+          style={{ marginLeft: 10 }}
+          onClick={e => {
+            e.preventDefault();
+            setOpenDialog(true);
+          }}
+        >
+          Fjern
+        </Button>
+        <Dialog
+          open={openDialog}
+          TransitionComponent={Transition}
+          keepMounted
+          onClose={() => setOpenDialog(false)}
+          aria-labelledby="alert-dialog-slide-title"
+          aria-describedby="alert-dialog-slide-description"
+        >
+          <DialogTitle
+            id="alert-dialog-slide-title"
+            className={classes.errorColor}
+          >
+            {'ADVARSEL!! Slet Med-Lem?'}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">
+              Du er ved at slette et Med-Lem. Dette skal kun gøres hvis der er
+              oprettet en bruger ved en fejl. Tidligere Med-Lemmer skal gøres
+              inaktive ved at benytte "Nuværende Med-Lem" kontakten!
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDialog(false)} color="primary">
+              Det var en fejl jeg trykkede på Fjern knappen
+            </Button>
+            <Button
+              onClick={e => {
+                e.preventDefault();
+                deleteUser({
+                  variables: {
+                    id: user.id,
+                  },
+                });
+                history.goBack();
+              }}
+              className={classes.errorColor}
+            >
+              Slet Med-Lemmet
+            </Button>
+          </DialogActions>
+        </Dialog>
+        {didChange && (
+          <Button
+            variant="contained"
+            color="primary"
+            style={{ marginLeft: 10 }}
+            onClick={e => {
+              e.preventDefault();
+              updateUser({
+                variables: {
+                  id: user.id,
+                  active: user.active,
+                  name: user.name,
+                  username: user.username,
+                  birthday: dateEpochToDateString(user.birthday, 'yyyy-MM-DD'),
+                  address: user.address,
+                  email: user.email,
+                  phone: user.phone,
+                  mobile: user.mobile,
+                  work: user.work,
+                  workemail: user.workemail,
+                  workphone: user.workphone,
+                  size: user.size,
+                  // roles: user.roles.map(role => role.id),
+                },
+              });
+              history.goBack();
+            }}
+          >
+            Opdatér
+          </Button>
+        )}
+      </div>
       {user && (
         <div className={classes.root}>
           <div>
