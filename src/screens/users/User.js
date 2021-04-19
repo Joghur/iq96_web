@@ -172,7 +172,6 @@ const UPDATE_USER = gql`
     $workphone: String!
     $size: String!
     $roles: [Int!]!
-    $password: String!
   ) {
     updateUser(
       id: $id
@@ -189,7 +188,6 @@ const UPDATE_USER = gql`
       workphone: $workphone
       size: $size
       roles: $roles
-      password: $password
     ) {
       id
     }
