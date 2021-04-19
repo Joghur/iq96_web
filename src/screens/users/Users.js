@@ -27,7 +27,7 @@ const ALL_USERS = gql`
 
 export const Users = () => {
   const allUsers = useQuery(ALL_USERS, {
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'cache-and-network',
   });
   const [active, setActive] = useState(true);
 
@@ -76,14 +76,16 @@ export const Users = () => {
   return (
     <>
       {allUsers.data && (
-        <Table
-          title={'IQ96 Med-Lemmer'}
-          tabelArray={tabelArray}
-          headCells={headCells}
-          startRowsPerPage={tabelArray.length}
-          showPagination={false}
-          // rowsPerPageOptions={[10, { value: tabelArray.length, label: 'Alle' }]}
-        />
+        <>
+          <Table
+            title={'IQ96 Med-Lemmer'}
+            tabelArray={tabelArray}
+            headCells={headCells}
+            startRowsPerPage={tabelArray.length}
+            showPagination={false}
+            // rowsPerPageOptions={[10, { value: tabelArray.length, label: 'Alle' }]}
+          />
+        </>
       )}
     </>
   );

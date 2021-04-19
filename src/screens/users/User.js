@@ -172,6 +172,7 @@ const UPDATE_USER = gql`
     $workphone: String!
     $size: String!
     $roles: [Int!]!
+    $password: String!
   ) {
     updateUser(
       id: $id
@@ -188,6 +189,45 @@ const UPDATE_USER = gql`
       workphone: $workphone
       size: $size
       roles: $roles
+      password: $password
+    ) {
+      id
+    }
+  }
+`;
+
+const CREATE_USER = gql`
+  mutation createUser(
+    $active: Boolean!
+    $name: String!
+    $username: String!
+    $birthday: String!
+    $address: String!
+    $email: String!
+    $phone: String!
+    $mobile: String!
+    $work: String!
+    $workemail: String!
+    $workphone: String!
+    $size: String!
+    $roles: [Int!]!
+    $password: String!
+  ) {
+    createUser(
+      active: $active
+      name: $name
+      username: $username
+      birthday: $birthday
+      address: $address
+      email: $email
+      phone: $phone
+      mobile: $mobile
+      work: $work
+      workemail: $workemail
+      workphone: $workphone
+      size: $size
+      roles: $roles
+      password: $password
     ) {
       id
     }
@@ -207,6 +247,7 @@ export const User = () => {
   const history = useHistory();
 
   const userQuery = useQuery(USER, {
+    skip: id === '-1',
     variables: { id: parseInt(id) },
     fetchPolicy: 'cache-first',
   });
@@ -214,16 +255,34 @@ export const User = () => {
     fetchPolicy: 'cache-first',
   });
   const [updateUser, { data }] = useMutation(UPDATE_USER);
+  const [createUser] = useMutation(CREATE_USER);
   const [deleteUser] = useMutation(DELETE_USER);
 
-  const [user, setUser] = useState();
+  const emptyUser = {
+    size: '',
+    mobile: '',
+    active: true,
+    name: '',
+    workemail: '',
+    phone: '',
+    work: '',
+    address: '',
+    username: '',
+    email: '',
+    workphone: '',
+    birthday: '0',
+    roles: [],
+    password: 'test',
+  };
+
+  const [user, setUser] = useState(emptyUser);
   const [didChange, setDidChange] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState({});
   const [openDialog, setOpenDialog] = React.useState(false);
 
   useEffect(() => {
-    setUser(userQuery.data?.user?.user);
+    if (id !== '-1') setUser(userQuery.data?.user?.user);
   }, [userQuery]);
 
   useEffect(() => {
@@ -256,7 +315,7 @@ export const User = () => {
 
     console.log('event', event);
     console.log('event.target', event?.target);
-    console.log('id', id);
+    console.log('id in', id);
     console.log('checked', checked);
     console.log('name', name);
     // console.log(' typeof event', typeof event);
@@ -274,7 +333,7 @@ export const User = () => {
         id = name; // this input control uses name instead of id
         value = secondParam.props?.value;
       } else {
-        id = id.split('-')[0];
+        id = 'roles';
         value = secondParam;
       }
     }
@@ -309,6 +368,8 @@ export const User = () => {
 
     setDidChange(true);
 
+    console.log('id out', id);
+
     // insert new values in user object
     setUser(user => {
       return { ...user, [id]: validated.value };
@@ -327,89 +388,115 @@ export const User = () => {
               style={{ marginLeft: 10 }}
               onClick={e => {
                 e.preventDefault();
-                updateUser({
-                  variables: {
-                    id: user.id,
-                    active: user.active,
-                    name: user.name,
-                    username: user.username,
-                    birthday: dateEpochToDateString(
-                      user.birthday,
-                      'yyyy-MM-DD',
-                    ),
-                    address: user.address,
-                    email: user.email,
-                    phone: user.phone,
-                    mobile: user.mobile,
-                    work: user.work,
-                    workemail: user.workemail,
-                    workphone: user.workphone,
-                    size: user.size,
-                    roles: user.roles.map(role => role.id),
-                  },
-                });
+                id !== '-1'
+                  ? updateUser({
+                      variables: {
+                        id: user.id,
+                        active: user.active,
+                        name: user.name,
+                        username: user.username,
+                        birthday: dateEpochToDateString(
+                          user.birthday,
+                          'yyyy-MM-DD',
+                        ),
+                        address: user.address,
+                        email: user.email,
+                        phone: user.phone,
+                        mobile: user.mobile,
+                        work: user.work,
+                        workemail: user.workemail,
+                        workphone: user.workphone,
+                        size: user.size,
+                        roles: user.roles.map(role => role.id),
+                      },
+                    })
+                  : createUser({
+                      variables: {
+                        active: user.active,
+                        name: user.name,
+                        username: user.username,
+                        birthday: dateEpochToDateString(
+                          user.birthday,
+                          'yyyy-MM-DD',
+                        ),
+                        address: user.address,
+                        email: user.email,
+                        phone: user.phone,
+                        mobile: user.mobile,
+                        work: user.work,
+                        workemail: user.workemail,
+                        workphone: user.workphone,
+                        size: user.size,
+                        roles: user.roles.map(role => role.id),
+                        password: 'test',
+                      },
+                    });
                 history.goBack();
               }}
             >
-              Opdatér
+              {id === '-1' ? 'Opret' : 'Opdatér'}
             </Button>
           </Tooltip>
         )}
-        <Tooltip title="Tryk kun på denne knap hvis du vil slette en bruger der er oprettet ved en fejl eller under test. Du får een mulighed mere for at fortryde hvis du trykker">
-          <Button
-            variant="contained"
-            color="secondary"
-            size="small"
-            style={{ marginLeft: 10 }}
-            onClick={e => {
-              e.preventDefault();
-              setOpenDialog(true);
-            }}
-          >
-            Fjern
-          </Button>
-        </Tooltip>
-        <Dialog
-          open={openDialog}
-          TransitionComponent={Transition}
-          keepMounted
-          onClose={() => setOpenDialog(false)}
-          aria-labelledby="alert-dialog-slide-title"
-          aria-describedby="alert-dialog-slide-description"
-        >
-          <DialogTitle
-            id="alert-dialog-slide-title"
-            className={classes.errorColor}
-          >
-            {'ADVARSEL!! Slet Med-Lem?'}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-slide-description">
-              Du er ved at slette et Med-Lem. Dette skal kun gøres hvis der er
-              oprettet en bruger ved en fejl. Tidligere Med-Lemmer skal gøres
-              inaktive ved at benytte "Nuværende Med-Lem" kontakten!
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenDialog(false)} color="primary">
-              Det var en fejl jeg trykkede på Fjern knappen
-            </Button>
-            <Button
-              onClick={e => {
-                e.preventDefault();
-                deleteUser({
-                  variables: {
-                    id: user.id,
-                  },
-                });
-                history.goBack();
-              }}
-              className={classes.errorColor}
+        {id !== '-1' && (
+          <>
+            <Tooltip title="Tryk kun på denne knap hvis du vil slette en bruger der er oprettet ved en fejl eller under test. Du får een mulighed mere for at fortryde hvis du trykker">
+              <Button
+                variant="contained"
+                color="secondary"
+                size="small"
+                style={{ marginLeft: 10 }}
+                onClick={e => {
+                  e.preventDefault();
+                  setOpenDialog(true);
+                }}
+              >
+                Fjern
+              </Button>
+            </Tooltip>
+            <Dialog
+              open={openDialog}
+              TransitionComponent={Transition}
+              keepMounted
+              onClose={() => setOpenDialog(false)}
+              aria-labelledby="alert-dialog-slide-title"
+              aria-describedby="alert-dialog-slide-description"
             >
-              Slet Med-Lemmet
-            </Button>
-          </DialogActions>
-        </Dialog>
+              <DialogTitle
+                id="alert-dialog-slide-title"
+                className={classes.errorColor}
+              >
+                {'ADVARSEL!! Slet Med-Lem?'}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-slide-description">
+                  Du er ved at slette et Med-Lem. Dette skal kun gøres hvis der
+                  er oprettet en bruger ved en fejl. Tidligere Med-Lemmer skal
+                  gøres inaktive ved at benytte "Nuværende Med-Lem" kontakten!
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => setOpenDialog(false)} color="primary">
+                  Det var en fejl jeg trykkede på Fjern knappen
+                </Button>
+                <Button
+                  onClick={e => {
+                    e.preventDefault();
+                    deleteUser({
+                      variables: {
+                        id: user.id,
+                      },
+                    });
+                    history.goBack();
+                  }}
+                  className={classes.errorColor}
+                >
+                  Slet Med-Lemmet
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </>
+        )}
       </div>
       {user && (
         <div className={classes.root}>
@@ -574,6 +661,7 @@ export const User = () => {
                 <Autocomplete
                   multiple
                   id="roles"
+                  name="roles"
                   options={rolesQuery?.data?.allRoles?.roles}
                   getOptionLabel={option => {
                     return option.role;

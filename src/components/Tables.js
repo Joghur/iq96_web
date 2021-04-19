@@ -17,11 +17,10 @@ import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import DeleteIcon from '@material-ui/icons/Delete';
+// import DeleteIcon from '@material-ui/icons/Delete';
 import PictureAsPdf from '@material-ui/icons/PictureAsPdf';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import AddBoxIcon from '@material-ui/icons/AddBox';
 import _ from 'lodash';
 import styled from 'styled-components';
 import gql from 'graphql-tag';
@@ -167,6 +166,7 @@ const useToolbarStyles = makeStyles(theme => ({
 }));
 
 const EnhancedTableToolbar = props => {
+  const history = useHistory();
   const classes = useToolbarStyles();
   const { numSelected, title } = props;
 
@@ -180,6 +180,11 @@ const EnhancedTableToolbar = props => {
     // server sent the url to the file!
     // now, let's download:
     window.location.href = response.file;
+  };
+
+  const handleNewUser = () => {
+    console.log('handleNewUser');
+    history.push('/user/-1');
   };
 
   return (
@@ -214,13 +219,18 @@ const EnhancedTableToolbar = props => {
         </Tooltip>
       ) : (
         <>
+          <Tooltip title="Opret nyt Med-Lem">
+            <IconButton aria-label="nyt med-lem">
+              <AddBoxIcon onClick={handleNewUser} />
+            </IconButton>
+          </Tooltip>
           <Tooltip title="Lav en PDF fil af listen">
-            <IconButton aria-label="filter list">
+            <IconButton aria-label="create PDF">
               <PictureAsPdf onClick={handleCreatePDF} />
             </IconButton>
           </Tooltip>
           <Tooltip title="Filtrér listen">
-            <IconButton aria-label="filter list">
+            <IconButton aria-label="filter list" disabled>
               <FilterListIcon />
             </IconButton>
           </Tooltip>
@@ -331,10 +341,6 @@ export default function Tables(props) {
     setSelected(newSelected);
   };
 
-  const handleClickCell = (event, name) => {
-    console.log('id', id);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -343,10 +349,6 @@ export default function Tables(props) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-
-  // const handleChangeDense = event => {
-  //   setDense(event.target.checked);
-  // };
 
   const isSelected = name => selected.indexOf(name) !== -1;
 
@@ -470,10 +472,6 @@ export default function Tables(props) {
               />
             )}
           </Paper>
-          {/* <FormControlLabel
-        control={<Switch checked={dense} onChange={handleChangeDense} />}
-        label="Tæt tabel"
-      /> */}
         </div>
       </PDFBlock>
     </div>
