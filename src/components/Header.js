@@ -1,6 +1,5 @@
 import React from 'react';
 import { fade, makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
@@ -15,6 +14,8 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import { NavLink } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+import { logout } from '../utils/auth';
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -85,6 +86,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Header(props) {
+  const history = useHistory();
   const { handleDrawerToggle, mobileOpen } = props;
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -121,8 +123,16 @@ export default function Header(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      {/* <MenuItem onClick={handleMenuClose}>Profile</MenuItem> */}
+      {/* <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
+      <MenuItem
+        onClick={async () => {
+          await logout();
+          // history.push('/');
+        }}
+      >
+        Logout
+      </MenuItem>
     </Menu>
   );
 

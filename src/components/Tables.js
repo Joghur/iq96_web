@@ -172,7 +172,7 @@ const EnhancedTableToolbar = props => {
 
   const handleCreatePDF = () => {
     console.log('handleCreatePDF');
-    const url = SERVER_URL + '/pdf';
+    const url = SERVER_URL + '/IQlist.pdf';
     console.log('url', url);
     const response = {
       file: url,

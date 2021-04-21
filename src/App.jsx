@@ -1,8 +1,7 @@
 /* eslint-disable react/no-array-index-key */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable import/named */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
@@ -37,6 +36,10 @@ import { Laws } from './screens/library/Laws';
 import { PreviousTours } from './screens/library/PreviousTours';
 import { Letters } from './screens/library/Letters';
 import { IFRAME_URL } from './constants';
+import { PrivateRoute } from './components/PrivateRoute';
+import { Login } from './components/Login';
+import { auth } from './utils/firebase';
+import Snackbar from './components/Snackbar';
 
 const drawerWidth = 240;
 const usersMenuItems = [
@@ -109,10 +112,41 @@ function App() {
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
   const pdfOnlyMode = params.get('pdfonly');
+
+  useEffect(() => {
+    auth().onAuthStateChanged(async user => {
+      if (user) {
+        // console.log('auth().curren', await auth().currentUser.getIdToken());
+        // console.log('user.displayName', user.displayName);
+        // // console.log('User.getToken()', User.getToken());
+        // console.log('user.email', user.email);
+        // console.log('user.photoURL', user.photoURL);
+        // console.log('user.emailVerified', user.emailVerified);
+        // console.log('user.uid', user.uid);
+        // user.providerData.forEach(function (profile) {
+        //   console.log(`Sign-in provider: ${profile.providerId}`);
+        //   console.log(`  Provider-specific UID: ${profile.uid}`);
+        //   console.log(`  Name: ${profile.displayName}`);
+        //   console.log(`  Email: ${profile.email}`);
+        //   console.log(`  Photo URL: ${profile.photoURL}`);
+        // });
+
+        const _token = await auth().currentUser.getIdToken();
+        localStorage.setItem('auth_token', _token);
+        setAuthenticated(true);
+        setLoading(false);
+      } else {
+        setAuthenticated(false);
+        setLoading(false);
+      }
+    });
+  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -164,6 +198,12 @@ function App() {
     );
   };
 
+  if (loading) {
+    return <Snackbar severity="info">Henter....</Snackbar>;
+  }
+
+  console.log('authenticated', authenticated);
+
   return (
     <div className={classes.root}>
       <Router>
@@ -209,8 +249,13 @@ function App() {
           <div>
             <main>
               <Route exact path="/" component={OldSite} />
-              <Route path="/users" component={Users} />
-              <Route path="/user/:id" component={User} />
+              <PrivateRoute path="/users" authenticated={authenticated}>
+                <Users />
+              </PrivateRoute>
+              <PrivateRoute path="/user/:id" authenticated={authenticated}>
+                <User />
+              </PrivateRoute>
+              <Route path="/login" component={Login} />
               <Route path="/board" component={Board} />
               <Route path="/titles" component={Titles} />
               <Route path="/signin" component={SignIn} />

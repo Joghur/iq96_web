@@ -78,7 +78,7 @@ export const Users = () => {
       {allUsers.data && (
         <>
           <Table
-            title={'IQ96 Med-Lemmer'}
+            title={`IQ96 Med-Lemmer (${tabelArray.length})`}
             tabelArray={tabelArray}
             headCells={headCells}
             startRowsPerPage={tabelArray.length}

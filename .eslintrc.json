@@ -5,17 +5,15 @@
     "jest": true
   },
   "extends": [
+    "eslint:recommended",
     "plugin:react/recommended",
     "airbnb",
-    "plugin:@typescript-eslint/recommended",
-    // "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
-  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -26,11 +24,11 @@
   "plugins": [
     "react",
     "react-hooks",
-    "@typescript-eslint",
     "prettier"
   ],
   "rules": {
     "react/jsx-props-no-spreading": "off",
+    "no-underscore-dangle": "off",
     "react/react-in-jsx-scope": "off",
     "prettier/prettier": "error",
     "react-hooks/rules-of-hooks": "error",
@@ -39,42 +37,23 @@
       1,
       {
         "extensions": [
-          ".tsx"
+          ".tsx", ".jsx"
         ]
       }
     ],
     "import/prefer-default-export": "off",
-    "@typescript-eslint/explicit-function-return-type": [
-      "error",
-      {
-        "allowExpressions": true
-      }
-    ],
     "import/extensions": [
       "error",
       "ignorePackages",
       {
-        "ts": "never",
-        "tsx": "never",
         "jsx": "never",
         "js": "never"
       }
-    ],
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-explicit-any": "off"
+    ]
   },
-  "overrides": [
-    {
-      // enable the rule specifically for TypeScript files
-      "files": ["*.ts", "*.tsx"],
-      "rules": {
-        "@typescript-eslint/explicit-module-boundary-types": ["error"]
-      }
-    }
-  ],
   "settings": {
-    "import/resolver": {
-      "typescript": {}
+    "react": {
+      "version": "detect"
     }
   }
 }

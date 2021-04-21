@@ -189,7 +189,9 @@ const UPDATE_USER = gql`
       size: $size
       roles: $roles
     ) {
-      id
+      user {
+        id
+      }
     }
   }
 `;
@@ -227,7 +229,9 @@ const CREATE_USER = gql`
       roles: $roles
       password: $password
     ) {
-      id
+      user {
+        id
+      }
     }
   }
 `;
@@ -297,11 +301,11 @@ export const User = () => {
   if (userQuery.data?.user?.errors)
     return <Snackbar severity="error">Kunne ikke finde Med-Lem</Snackbar>;
 
-  console.log('user', user);
+  // console.log('user', user);
   // console.log('data', data?.updateUser?.id);
   // console.log('error', error);
   // console.log('errorMessage', errorMessage);
-  console.log('deleteUser.data', deleteUser.data);
+  // console.log('deleteUser.data', deleteUser.data);
 
   // Handles all changes
   const handleChange = (event, secondParam) => {

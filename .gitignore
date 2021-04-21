@@ -27,3 +27,5 @@ yarn-error.log*
 *.mp3
 
 *.pdf
+
+src/utils/firebase.js
