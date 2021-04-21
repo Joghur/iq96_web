@@ -9,6 +9,10 @@ import {
 import App from './App';
 import { SERVER_URL } from './constants';
 
+const url = new URL(window.location.href);
+const params = new URLSearchParams(url.search);
+const pdfToken = params.get('pdftoken');
+
 console.log('SERVER_URL', SERVER_URL);
 
 const httpLink = new HttpLink({
@@ -25,6 +29,7 @@ const authLink = new ApolloLink((operation, forward) => {
   operation.setContext({
     headers: {
       authorization: token || '',
+      pdf: pdfToken,
     },
   });
 

@@ -118,6 +118,7 @@ function App() {
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
   const pdfOnlyMode = params.get('pdfonly');
+  const pdfToken = params.get('pdftoken');
 
   useEffect(() => {
     auth().onAuthStateChanged(async user => {
@@ -203,6 +204,7 @@ function App() {
   }
 
   console.log('authenticated', authenticated);
+  console.log('pdfToken', pdfToken);
 
   return (
     <div className={classes.root}>
@@ -249,23 +251,47 @@ function App() {
           <div>
             <main>
               <Route exact path="/" component={OldSite} />
-              <PrivateRoute path="/users" authenticated={authenticated}>
+              <Route path="/login" component={Login} />
+              <PrivateRoute
+                path="/users"
+                authenticated={authenticated}
+                pdf={pdfToken}
+              >
                 <Users />
               </PrivateRoute>
               <PrivateRoute path="/user/:id" authenticated={authenticated}>
                 <User />
               </PrivateRoute>
-              <Route path="/login" component={Login} />
-              <Route path="/board" component={Board} />
-              <Route path="/titles" component={Titles} />
-              <Route path="/signin" component={SignIn} />
-              <Route path="/old_site" component={OldSite} />
-              <Route path="/annals" component={Annals} />
-              <Route path="/summary" component={Summary} />
-              <Route path="/letters" component={Letters} />
-              <Route path="/song" component={Song} />
-              <Route path="/laws" component={Laws} />
-              <Route path="/previous-tours" component={PreviousTours} />
+              <PrivateRoute path="/board" authenticated={authenticated}>
+                <Board />
+              </PrivateRoute>
+              <PrivateRoute path="/titles" authenticated={authenticated}>
+                <Titles />
+              </PrivateRoute>
+              <PrivateRoute path="/signin" authenticated={authenticated}>
+                <SignIn />
+              </PrivateRoute>
+              <PrivateRoute path="/annals" authenticated={authenticated}>
+                <Annals />
+              </PrivateRoute>
+              <PrivateRoute path="/summary" authenticated={authenticated}>
+                <Summary />
+              </PrivateRoute>
+              <PrivateRoute path="/letters" authenticated={authenticated}>
+                <Letters />
+              </PrivateRoute>
+              <PrivateRoute path="/song" authenticated={authenticated}>
+                <Song />
+              </PrivateRoute>
+              <PrivateRoute path="/laws" authenticated={authenticated}>
+                <Laws />
+              </PrivateRoute>
+              <PrivateRoute
+                path="/previous-tours"
+                authenticated={authenticated}
+              >
+                <PreviousTours />
+              </PrivateRoute>
             </main>
           </div>
         </main>

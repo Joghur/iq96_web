@@ -172,14 +172,25 @@ const EnhancedTableToolbar = props => {
 
   const handleCreatePDF = () => {
     console.log('handleCreatePDF');
-    const url = SERVER_URL + '/IQlist.pdf';
-    console.log('url', url);
-    const response = {
-      file: url,
-    };
-    // server sent the url to the file!
-    // now, let's download:
-    window.location.href = response.file;
+    const token = localStorage.getItem('auth_token');
+    const url = SERVER_URL + '/pdf';
+
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        authorization: token,
+      },
+    })
+      .then(response => response.blob())
+      .then(blob => {
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'IQliste.pdf';
+        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+        a.click();
+        a.remove(); //afterwards we remove the element again
+      });
   };
 
   const handleNewUser = () => {
