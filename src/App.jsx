@@ -38,7 +38,6 @@ import { Letters } from './screens/library/Letters';
 import { IFRAME_URL } from './constants';
 import { PrivateRoute } from './components/PrivateRoute';
 import { Login } from './components/Login';
-import { auth } from './utils/firebase';
 import Snackbar from './components/Snackbar';
 
 const drawerWidth = 240;
@@ -121,32 +120,15 @@ function App() {
   const pdfToken = params.get('pdftoken');
 
   useEffect(() => {
-    auth().onAuthStateChanged(async user => {
-      if (user) {
-        // console.log('auth().curren', await auth().currentUser.getIdToken());
-        // console.log('user.displayName', user.displayName);
-        // // console.log('User.getToken()', User.getToken());
-        // console.log('user.email', user.email);
-        // console.log('user.photoURL', user.photoURL);
-        // console.log('user.emailVerified', user.emailVerified);
-        // console.log('user.uid', user.uid);
-        // user.providerData.forEach(function (profile) {
-        //   console.log(`Sign-in provider: ${profile.providerId}`);
-        //   console.log(`  Provider-specific UID: ${profile.uid}`);
-        //   console.log(`  Name: ${profile.displayName}`);
-        //   console.log(`  Email: ${profile.email}`);
-        //   console.log(`  Photo URL: ${profile.photoURL}`);
-        // });
-
-        const _token = await auth().currentUser.getIdToken();
-        localStorage.setItem('auth_token', _token);
-        setAuthenticated(true);
-        setLoading(false);
-      } else {
-        setAuthenticated(false);
-        setLoading(false);
-      }
-    });
+    // Retrieve the authorization token from local storage.
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      setAuthenticated(true);
+      setLoading(false);
+    } else {
+      setAuthenticated(false);
+      setLoading(false);
+    }
   }, []);
 
   const handleDrawerToggle = () => {
@@ -204,7 +186,6 @@ function App() {
   }
 
   console.log('authenticated', authenticated);
-  console.log('pdfToken', pdfToken);
 
   return (
     <div className={classes.root}>

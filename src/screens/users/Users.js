@@ -68,22 +68,28 @@ export const Users = () => {
   }
 
   if (allUsers.loading) return <div>Henter Med-Lemmer...</div>;
-  if (allUsers.error)
+  if (allUsers.error || !allUsers.data?.allUsers)
     return (
       <Snackbar severity="error">Kunne ikke hente Med-Lems liste</Snackbar>
     );
-
+  console.log('allUsers.data', allUsers.data);
   return (
     <>
-      {allUsers.data && (
+      {allUsers.data?.allUsers && (
         <>
           <Table
             title={`IQ96 Med-Lemmer (${tabelArray.length})`}
             tabelArray={tabelArray}
             headCells={headCells}
-            startRowsPerPage={tabelArray.length}
-            showPagination={false}
-            // rowsPerPageOptions={[10, { value: tabelArray.length, label: 'Alle' }]}
+            startRowsPerPage={15}
+            showPagination={true}
+            rowsPerPageOptions={[
+              15,
+              17,
+              19,
+              21,
+              { value: tabelArray.length, label: 'Alle' },
+            ]}
           />
         </>
       )}

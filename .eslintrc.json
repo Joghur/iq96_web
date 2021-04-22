@@ -32,7 +32,11 @@
     "react/react-in-jsx-scope": "off",
     "prettier/prettier": "error",
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/exhaustive-deps": [
+      "warn", {
+        "additionalHooks": "useRecoilCallback"
+      }
+    ],
     "react/jsx-filename-extension": [
       1,
       {

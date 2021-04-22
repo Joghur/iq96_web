@@ -24,16 +24,17 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import _ from 'lodash';
 import styled from 'styled-components';
 import gql from 'graphql-tag';
-import { SERVER_URL } from '../constants';
 import Snackbar from '../components/Snackbar';
 import { useHistory } from 'react-router-dom';
+import html2PDF from 'jspdf-html2canvas';
 
 // getting pdf state and rows in tabel to make sure pdf is written
 // with amount of rows that has been chosen
-const url = new URL(window.location.href);
-const params = new URLSearchParams(url.search);
-const pdfOnlyMode = params.get('pdfonly');
-const rowspage = params.get('rowspage');
+// const url = new URL(window.location.href);
+// const params = new URLSearchParams(url.search);
+// const pdfOnlyMode = params.get('pdfonly');
+// let pdfOnlyMode = false;
+// const rowspage = params.get('rowspage');
 
 const PDFBlock = styled.div`
 #pdf {
@@ -90,11 +91,12 @@ function EnhancedTableHead(props) {
     rowCount,
     onRequestSort,
     headCells,
+    pdfOnlyMode,
   } = props;
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
-
+  console.log('pdfOnlyMode 145', pdfOnlyMode);
   return (
     <TableHead>
       <TableRow>
@@ -143,6 +145,7 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
   headCells: PropTypes.array.isRequired,
+  pdfOnlyMode: PropTypes.bool.isRequired,
 };
 
 const useToolbarStyles = makeStyles(theme => ({
@@ -168,29 +171,49 @@ const useToolbarStyles = makeStyles(theme => ({
 const EnhancedTableToolbar = props => {
   const history = useHistory();
   const classes = useToolbarStyles();
-  const { numSelected, title } = props;
+  const { numSelected, title, handlePdfTag } = props;
 
   const handleCreatePDF = () => {
     console.log('handleCreatePDF');
-    const token = localStorage.getItem('auth_token');
-    const url = SERVER_URL + '/pdf';
-
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        authorization: token,
-      },
-    })
-      .then(response => response.blob())
-      .then(blob => {
-        var url = window.URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = 'IQliste.pdf';
-        document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
-        a.click();
-        a.remove(); //afterwards we remove the element again
+    handlePdfTag(true);
+    setTimeout(() => {
+      const input = document.getElementById('pdf');
+      html2PDF(input, {
+        jsPDF: {
+          format: 'a4',
+        },
+        margin: {
+          top: 0,
+          right: 4,
+          bottom: 0,
+          left: 4,
+        },
+        imageType: 'image/jpeg',
+        output: 'IQliste.pdf',
       });
+
+      handlePdfTag(false);
+    }, 300);
+
+    // const token = localStorage.getItem('auth_token');
+    // const url = SERVER_URL + '/pdf';
+
+    // fetch(url, {
+    //   method: 'GET',
+    //   headers: {
+    //     authorization: token,
+    //   },
+    // })
+    //   .then(response => response.blob())
+    //   .then(blob => {
+    //     var url = window.URL.createObjectURL(blob);
+    //     var a = document.createElement('a');
+    //     a.href = url;
+    //     a.download = 'IQliste.pdf';
+    //     document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+    //     a.click();
+    //     a.remove(); //afterwards we remove the element again
+    //   });
   };
 
   const handleNewUser = () => {
@@ -254,6 +277,7 @@ const EnhancedTableToolbar = props => {
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
   title: PropTypes.string.isRequired,
+  handlePdfTag: PropTypes.func.isRequired,
 };
 
 const useStyles = makeStyles(theme => ({
@@ -262,7 +286,7 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     width: '100%',
-    marginBottom: theme.spacing(2),
+    marginBottom: theme.spacing(1),
   },
   table: {
     minWidth: 750,
@@ -279,7 +303,7 @@ const useStyles = makeStyles(theme => ({
     width: 1,
   },
   tablecell: {
-    fontSize: pdfOnlyMode ? '8pt' : '12pt',
+    fontSize: '8pt',
   },
 }));
 
@@ -304,10 +328,8 @@ export default function Tables(props) {
   const [orderBy, setOrderBy] = React.useState(headCells[0].id);
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(true);
-  const [rowsPerPage, setRowsPerPage] = React.useState(
-    !pdfOnlyMode ? startRowsPerPage : rowspage,
-  );
+  const [pdfOnlyMode, setPdfOnlyMode] = React.useState(false);
+  const [rowsPerPage, setRowsPerPage] = React.useState(startRowsPerPage);
   const [headerKeysInTabel, setHeaderKeysInTabel] = React.useState([]);
 
   useEffect(() => {
@@ -316,6 +338,10 @@ export default function Tables(props) {
     });
     setHeaderKeysInTabel(keys);
   }, []);
+
+  const handlePdfTag = params => {
+    setPdfOnlyMode(params);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -371,13 +397,17 @@ export default function Tables(props) {
       <PDFBlock>
         <div id={pdfOnlyMode ? 'pdf' : ''}>
           <Paper className={classes.paper}>
-            <EnhancedTableToolbar title={title} numSelected={selected.length} />
+            <EnhancedTableToolbar
+              title={title}
+              numSelected={selected.length}
+              handlePdfTag={handlePdfTag}
+            />
             <TableContainer>
               <Table
                 stickyHeader
                 className={classes.table}
                 aria-labelledby="tableTitle"
-                size={dense ? 'small' : 'medium'}
+                size={'small'}
                 aria-label="sticky table"
               >
                 <EnhancedTableHead
@@ -390,6 +420,7 @@ export default function Tables(props) {
                   rowCount={tabelArray.length}
                   headCells={headCells}
                   startRowsPerPage={startRowsPerPage}
+                  pdfOnlyMode={pdfOnlyMode}
                 />
                 <TableBody>
                   {stableSort(tabelArray, getComparator(order, orderBy))
@@ -464,7 +495,7 @@ export default function Tables(props) {
                       );
                     })}
                   {emptyRows > 0 && (
-                    <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                    <TableRow style={{ height: 25 * emptyRows }}>
                       <TableCell colSpan={2} />
                     </TableRow>
                   )}
@@ -480,6 +511,9 @@ export default function Tables(props) {
                 page={page}
                 onChangePage={handleChangePage}
                 onChangeRowsPerPage={handleChangeRowsPerPage}
+                labelRowsPerPage="Rækker per side:"
+                nextIconButtonText="Næste side"
+                backIconButtonText="Forrige side"
               />
             )}
           </Paper>

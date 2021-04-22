@@ -7,6 +7,9 @@ export function PrivateRoute({ children, authenticated, pdf, ...rest }) {
     <Route
       {...rest}
       render={({ location }) => {
+        console.log('authenticated 222', authenticated);
+        console.log(' pdf 111', pdf);
+        console.log(' (authenticated || pdf) 333', authenticated || pdf);
         return authenticated || pdf ? (
           children
         ) : (
