@@ -10,4 +10,7 @@ export default {
   work: 'Arbjde',
   size: 'T-shirt størrelse',
   roles: 'Titler',
+  password: 'Kodeord',
+  repeatPassword: 'Gentagede kodeord',
+  quiz: 'Efternavnet',
 };

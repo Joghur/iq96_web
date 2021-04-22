@@ -96,7 +96,7 @@ function EnhancedTableHead(props) {
   const createSortHandler = property => event => {
     onRequestSort(event, property);
   };
-  console.log('pdfOnlyMode 145', pdfOnlyMode);
+  // console.log('pdfOnlyMode 145', pdfOnlyMode);
   return (
     <TableHead>
       <TableRow>

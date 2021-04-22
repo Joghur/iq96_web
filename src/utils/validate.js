@@ -1,11 +1,12 @@
-import { isEmail, isPhoneNumber } from './regexPatterns';
+import { isEmail, isPhoneNumber, isProperPassword } from './regexPatterns';
 import translations from './translations';
+import { quiz } from './secrets';
 
 export default (id, value) => {
   let ok = false;
   let correctedValue = value; // initial value - some id's will change this
   let errorMessage = '';
-
+  console.log('id 4', id);
   switch (id) {
     case 'name':
     case 'username':
@@ -13,6 +14,25 @@ export default (id, value) => {
     case 'address':
       correctedValue = value.replace(/[\\]|[\+]|[\;]|[\:]|[\"]/g, ''); // removing \ and +
       ok = true;
+      break;
+
+    case 'password':
+    case 'repeatPassword':
+      correctedValue = value;
+      if (correctedValue.length >= 6) {
+        ok = true;
+        break;
+      }
+      ok = false;
+      break;
+
+    case 'quiz':
+      correctedValue = value;
+      if (correctedValue.toLowerCase() === quiz && correctedValue.length > 0) {
+        ok = true;
+        break;
+      }
+      ok = false;
       break;
 
     case 'email':
@@ -48,5 +68,21 @@ export default (id, value) => {
     errorMessage = '';
   } // value may and can be empty
 
+  console.log('ok 149', ok);
+  console.log('correctedValue 150', correctedValue);
+  console.log('errorMessage 151', errorMessage);
+
   return { ok, value: correctedValue, errorMessage };
+};
+
+export const isEmptyObject = object => {
+  console.log('Object.keys(object) 65', Object.keys(object));
+  let isEmpty = true;
+  Object.keys(object).map(key => {
+    console.log('key 1', key);
+    console.log('value 2', object[key]);
+    console.log('object[key].length > 0 333', object[key].length > 0);
+    if (object[key].length > 0) return (isEmpty = false);
+  });
+  return isEmpty;
 };

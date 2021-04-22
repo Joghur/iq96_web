@@ -128,8 +128,8 @@ export default function Header(props) {
       {/* <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
       <MenuItem
         onClick={async () => {
-          await logout();
-          // history.push('/');
+          logout();
+          history.push('/');
         }}
       >
         Logout
@@ -197,7 +197,7 @@ export default function Header(props) {
             IQ96
           </NavLink>
         </Typography>
-        <div className={classes.search}>
+        {/* <div className={classes.search}>
           <div className={classes.searchIcon}>
             <SearchIcon />
           </div>
@@ -209,19 +209,19 @@ export default function Header(props) {
             }}
             inputProps={{ 'aria-label': 'search' }}
           />
-        </div>
+        </div> */}
         <div className={classes.grow} />
         <div className={classes.sectionDesktop}>
-          <IconButton aria-label="show 4 new mails" color="inherit">
+          {/* <IconButton aria-label="show 4 new mails" color="inherit">
             <Badge badgeContent={4} color="secondary">
               <MailIcon />
             </Badge>
-          </IconButton>
-          <IconButton aria-label="show 17 new notifications" color="inherit">
+          </IconButton> */}
+          {/* <IconButton aria-label="show 17 new notifications" color="inherit">
             <Badge badgeContent={17} color="secondary">
               <NotificationsIcon />
             </Badge>
-          </IconButton>
+          </IconButton> */}
           <IconButton
             edge="end"
             aria-label="account of current user"
