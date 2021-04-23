@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useLocation, Redirect } from 'react-router-dom';
-import { signup, signin, loginFacebook } from '../utils/auth';
+import { signup, signin, loginFacebook, loginGoogle } from '../utils/auth';
 import Snackbar from '../components/Snackbar';
 import { TextField, Tooltip, Button, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import validate, { isEmptyObject } from '../utils/validate';
 import { userState } from '../Recoil';
-import { useRecoilValue, useRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { useGradientBtnStyles } from '@mui-treasury/styles/button/gradient';
 import { usePushingGutterStyles } from '@mui-treasury/styles/gutter/pushing';
 import { auth } from '../utils/firebase';
@@ -118,6 +118,7 @@ export function Login() {
       }, 500);
     } catch (error) {
       console.log('error 202', error.code);
+      setErrorMessage({}); // clear errorMessage to provoke a response
       if (error.code === 'auth/weak-password') {
         setErrorMessage({ password: 'Kodeordet skal være på mindst 6 tegn.' });
       } else if (error.code === 'auth/argument-error') {
@@ -130,19 +131,66 @@ export function Login() {
 
   const handleLoginFacebook = async () => {
     console.log('handleLoginFacebook 104');
-    const fbUser = await loginFacebook();
-    console.log('handleLoginFacebook user 105', fbUser);
-    if (fbUser) {
-      setUser({
-        displayName: fbUser.displayName,
-        email: fbUser.email,
-        firebaseUid: fbUser.uid,
-        token: await auth().currentUser.getIdToken(),
-      });
+    setEmailPassword({}); // emptying email/password to avoid errors
+    let fbUser;
+    try {
+      fbUser = await loginFacebook();
+      console.log('handleLoginFacebook user 105', fbUser);
+      if (fbUser) {
+        setUser({
+          displayName: fbUser.displayName,
+          email: fbUser.email,
+          firebaseUid: fbUser.uid,
+          token: await auth().currentUser.getIdToken(),
+        });
+      }
+      setTimeout(() => {
+        setRedirectToReferrer(true);
+      }, 500);
+    } catch (error) {
+      console.log('error 2045', error);
+      setErrorMessage({}); // clear errorMessage to provoke a response
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        setErrorMessage({
+          facebook:
+            'Du er tidligere logget ind med en Google eller email. Brug denne metode igen',
+        });
+      } else {
+        setErrorMessage({ facebook: 'Der er sket en fejl.' });
+      }
     }
-    setTimeout(() => {
-      setRedirectToReferrer(true);
-    }, 500);
+  };
+
+  const handleLoginGoogle = async () => {
+    console.log('handleLoginGoogle 106');
+    setEmailPassword({}); // emptying email/password to avoid errors
+    let googleUser;
+    try {
+      googleUser = await loginGoogle();
+      console.log('loginGooghandleLoginGooglele googleUser 107', googleUser);
+      if (googleUser) {
+        setUser({
+          displayName: googleUser.displayName,
+          email: googleUser.email,
+          firebaseUid: googleUser.uid,
+          token: await auth().currentUser.getIdToken(),
+        });
+      }
+      setTimeout(() => {
+        setRedirectToReferrer(true);
+      }, 500);
+    } catch (error) {
+      console.log('error 204', error.code);
+      setErrorMessage({}); // clear errorMessage to provoke a response
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        setErrorMessage({
+          google:
+            'Du er tidligere logget ind med en Facebook eller email. Brug denne metode igen',
+        });
+      } else {
+        setErrorMessage({ google: 'Der er sket en fejl.' });
+      }
+    }
   };
 
   console.log('isEmptyObject(errorMessage 6', isEmptyObject(errorMessage));
@@ -271,7 +319,7 @@ export function Login() {
           width: 240,
         }}
       >
-        <Tooltip title="Opret dig via Facebook. IQ96.dk modtager kun email og navn fra Facebook (og billede af en grå silhuet af en person)">
+        <Tooltip title="Opret dig via Facebook. IQ96.dk modtager kun email og navn fra Facebook (og et 'profilbillede' af en grå silhuet)">
           <Paper>
             <div
               style={{
@@ -302,7 +350,7 @@ export function Login() {
           width: 240,
         }}
       >
-        <Tooltip title="Opret dig via Google. IQ96.dk modtager kun email og navn fra Google">
+        <Tooltip title="Opret dig via Google. IQ96.dk modtager kun email, profilbillede og navn fra Google">
           <Paper>
             <div
               style={{
@@ -320,7 +368,7 @@ export function Login() {
                 paddingBottom: 10,
               }}
             >
-              <Button classes={chubbyStyles} onClick={loginFacebook}>
+              <Button classes={chubbyStyles} onClick={handleLoginGoogle}>
                 {signingUp ? 'Tilmeld via Google' : 'Login via Google'}
               </Button>
             </div>
@@ -331,6 +379,8 @@ export function Login() {
         <Snackbar severity="error">
           {errorMessage?.email ||
             errorMessage?.password ||
+            errorMessage?.facebook ||
+            errorMessage?.google ||
             errorMessage?.repeatPassword}
         </Snackbar>
       )}
