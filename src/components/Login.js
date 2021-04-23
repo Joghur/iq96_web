@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
 import { useLocation, Redirect } from 'react-router-dom';
-import { signup, signin } from '../utils/auth';
+import { signup, signin, loginFacebook } from '../utils/auth';
 import Snackbar from '../components/Snackbar';
-import { TextField, Tooltip, Button } from '@material-ui/core';
+import { TextField, Tooltip, Button, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import validate, { isEmptyObject } from '../utils/validate';
 import { userState } from '../Recoil';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { useGradientBtnStyles } from '@mui-treasury/styles/button/gradient';
 import { usePushingGutterStyles } from '@mui-treasury/styles/gutter/pushing';
+import { auth } from '../utils/firebase';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,7 +34,7 @@ const useStyles = makeStyles(theme => ({
 
 export function Login() {
   // recoil
-  const user = useRecoilValue(userState);
+  const [user, setUser] = useRecoilState(userState);
 
   // material-ui
   const classes = useStyles();
@@ -65,7 +66,7 @@ export function Login() {
     // console.log('value 145', value);
 
     const validated = validate(id, value);
-    console.log('validated.errorMessage 10 ', validated.errorMessage);
+    console.log('validated.errorMessage 10', validated.errorMessage);
     // if something is not validated exit function and set error states
     if (validated.errorMessage) {
       setErrorMessage({ [id]: validated.errorMessage });
@@ -92,7 +93,7 @@ export function Login() {
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error', error.code);
+      console.log('error 201', error.code);
       if (error.code === 'auth/too-many-requests') {
         setErrorMessage({ email: 'For mange forsøg. Prøv igen senere' });
       } else {
@@ -116,7 +117,7 @@ export function Login() {
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error', error.code);
+      console.log('error 202', error.code);
       if (error.code === 'auth/weak-password') {
         setErrorMessage({ password: 'Kodeordet skal være på mindst 6 tegn.' });
       } else if (error.code === 'auth/argument-error') {
@@ -127,11 +128,24 @@ export function Login() {
     }
   };
 
-  const loginFacebook = () => {
-    console.log('næste');
+  const handleLoginFacebook = async () => {
+    console.log('handleLoginFacebook 104');
+    const fbUser = await loginFacebook();
+    console.log('handleLoginFacebook user 105', fbUser);
+    if (fbUser) {
+      setUser({
+        displayName: fbUser.displayName,
+        email: fbUser.email,
+        firebaseUid: fbUser.uid,
+        token: await auth().currentUser.getIdToken(),
+      });
+    }
+    setTimeout(() => {
+      setRedirectToReferrer(true);
+    }, 500);
   };
 
-  console.log('isEmptyObject(errorMessage) 6', isEmptyObject(errorMessage));
+  console.log('isEmptyObject(errorMessage 6', isEmptyObject(errorMessage));
   // console.log('redirectToReferrer', redirectToReferrer);
   // console.log('state', state);
 
@@ -163,87 +177,155 @@ export function Login() {
           </Button>
         </div>
       )}
-      <div style={{ padding: 15 }}>
-        <div style={{ margin: 5 }}>
-          <Tooltip title="Opret dig via email og kodeord">
-            <Button
-              classes={chubbyStyles}
-              onClick={signingUp ? _signup : login}
+      <div
+        style={{
+          padding: 15,
+          width: 454,
+        }}
+      >
+        <Tooltip title="Opret dig via email og kodeord">
+          <Paper>
+            <div
+              style={{
+                paddingTop: 5,
+                paddingLeft: 5,
+                display: 'flex',
+                justifyContent: 'center',
+              }}
             >
-              Email
-            </Button>
-          </Tooltip>
-        </div>
-        <TextField
-          id="email"
-          label="Email"
-          error={!!errorMessage.email}
-          value={emailPassword.email}
-          className={classes.textFieldLarger}
-          margin="dense"
-          onChange={handleChange}
-          variant="outlined"
-          helperText={errorMessage.email && errorMessage.email}
-        />
-        <TextField
-          id="password"
-          label="Kodeord (mindst 6 tegn)"
-          type="password"
-          error={!!errorMessage.password}
-          value={emailPassword.password}
-          className={classes.textFieldLarger}
-          margin="dense"
-          onChange={handleChange}
-          variant="outlined"
-          helperText={errorMessage.password && errorMessage.password}
-        />
-        {signingUp && (
-          <>
+              <p>Email</p>
+            </div>
             <TextField
-              id="repeatPassword"
-              label="Gentag kodeord"
+              id="email"
+              label="Email"
+              error={!!errorMessage.email}
+              value={emailPassword.email}
+              className={classes.textFieldLarger}
+              margin="dense"
+              onChange={handleChange}
+              variant="outlined"
+              helperText={errorMessage.email && errorMessage.email}
+            />
+            <TextField
+              id="password"
+              label="Kodeord (mindst 6 tegn)"
               type="password"
-              error={!!errorMessage.repeatPassword}
-              value={emailPassword.repeatPassword}
+              error={!!errorMessage.password}
+              value={emailPassword.password}
               className={classes.textFieldLarger}
               margin="dense"
               onChange={handleChange}
               variant="outlined"
-              helperText={
-                errorMessage.repeatPassword && errorMessage.repeatPassword
-              }
+              helperText={errorMessage.password && errorMessage.password}
             />
-            <TextField
-              id="quiz"
-              label="Hvad er efternavnet på vores chef"
-              error={!!errorMessage.quiz}
-              value={emailPassword.quiz}
-              className={classes.textFieldLarger}
-              margin="dense"
-              onChange={handleChange}
-              variant="outlined"
-              helperText={errorMessage.quiz && errorMessage.quiz}
-            />
-          </>
-        )}
+            {signingUp && (
+              <>
+                <TextField
+                  id="repeatPassword"
+                  label="Gentag kodeord"
+                  type="password"
+                  error={!!errorMessage.repeatPassword}
+                  value={emailPassword.repeatPassword}
+                  className={classes.textFieldLarger}
+                  margin="dense"
+                  onChange={handleChange}
+                  variant="outlined"
+                  helperText={
+                    errorMessage.repeatPassword && errorMessage.repeatPassword
+                  }
+                />
+                <TextField
+                  id="quiz"
+                  label="Hvad er efternavnet på vores chef"
+                  error={!!errorMessage.quiz}
+                  value={emailPassword.quiz}
+                  className={classes.textFieldLarger}
+                  margin="dense"
+                  onChange={handleChange}
+                  variant="outlined"
+                  helperText={errorMessage.quiz && errorMessage.quiz}
+                />
+              </>
+            )}
+            <div
+              style={{
+                margin: 5,
+                paddingBottom: 10,
+              }}
+            >
+              <Button
+                classes={chubbyStyles}
+                onClick={signingUp ? _signup : login}
+              >
+                {signingUp
+                  ? 'Tilmeld via Email/kodeord'
+                  : 'Login via Email/kodeord'}
+              </Button>
+            </div>
+          </Paper>
+        </Tooltip>
       </div>
-      <div style={{ padding: 15 }}>
-        <div style={{ margin: 5 }}>
-          <Tooltip title="Opret dig via Facebook. Der modtages kun email og navn fra Facebook">
-            <Button classes={chubbyStyles} onClick={loginFacebook}>
-              Facebook
-            </Button>
-          </Tooltip>
-        </div>
+      <div
+        style={{
+          padding: 15,
+          width: 240,
+        }}
+      >
+        <Tooltip title="Opret dig via Facebook. IQ96.dk modtager kun email og navn fra Facebook (og billede af en grå silhuet af en person)">
+          <Paper>
+            <div
+              style={{
+                paddingTop: 5,
+                paddingLeft: 5,
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <p>Facebook</p>
+            </div>
+            <div
+              style={{
+                margin: 5,
+                paddingBottom: 10,
+              }}
+            >
+              <Button classes={chubbyStyles} onClick={handleLoginFacebook}>
+                {signingUp ? 'Tilmeld via Facebook' : 'Login via Facebook'}
+              </Button>
+            </div>
+          </Paper>
+        </Tooltip>
       </div>
-      <div style={{ padding: 15 }}>
-        <div style={{ margin: 5 }}>
-          <Tooltip title="Opret dig via Google. Der modtages kun email og navn fra Google">
-            <Button classes={chubbyStyles} onClick={loginFacebook}>
-              Google
-            </Button>
-          </Tooltip>
-        </div>
+      <div
+        style={{
+          padding: 15,
+          width: 240,
+        }}
+      >
+        <Tooltip title="Opret dig via Google. IQ96.dk modtager kun email og navn fra Google">
+          <Paper>
+            <div
+              style={{
+                paddingTop: 5,
+                paddingLeft: 5,
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <p>Google</p>
+            </div>
+            <div
+              style={{
+                margin: 5,
+                paddingBottom: 10,
+              }}
+            >
+              <Button classes={chubbyStyles} onClick={loginFacebook}>
+                {signingUp ? 'Tilmeld via Google' : 'Login via Google'}
+              </Button>
+            </div>
+          </Paper>
+        </Tooltip>
       </div>
       {!isEmptyObject(errorMessage) && (
         <Snackbar severity="error">

@@ -6,6 +6,9 @@ export const userState = atom({
     displayName: '',
     email: '',
     firebaseUid: '',
+    iqId: '',
+    role: '',
     token: '',
+    username: '',
   },
 });

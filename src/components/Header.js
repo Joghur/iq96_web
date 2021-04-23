@@ -17,6 +17,8 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { NavLink } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
 import { logout } from '../utils/auth';
+import { userState } from '../Recoil';
+import { useRecoilState } from 'recoil';
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -34,6 +36,9 @@ const useStyles = makeStyles(theme => ({
     [theme.breakpoints.up('sm')]: {
       display: 'block',
     },
+  },
+  member: {
+    marginLeft: theme.spacing(3),
   },
   search: {
     position: 'relative',
@@ -87,6 +92,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Header(props) {
+  // recoil
+  const [user, setUser] = useRecoilState(userState);
+
   const history = useHistory();
   const { handleDrawerToggle, mobileOpen } = props;
   const classes = useStyles();
@@ -128,6 +136,7 @@ export default function Header(props) {
       {/* <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
       <MenuItem
         onClick={async () => {
+          setUser({}); // clear recoil states
           logout();
           history.push('/');
         }}
@@ -196,6 +205,9 @@ export default function Header(props) {
             {' '}
             IQ96
           </NavLink>
+        </Typography>
+        <Typography className={classes.member} variant="h6" noWrap>
+          Velkommen {user.username}
         </Typography>
         {/* <div className={classes.search}>
           <div className={classes.searchIcon}>
