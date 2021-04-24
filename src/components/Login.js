@@ -10,6 +10,7 @@ import { useRecoilState } from 'recoil';
 import { useGradientBtnStyles } from '@mui-treasury/styles/button/gradient';
 import { usePushingGutterStyles } from '@mui-treasury/styles/gutter/pushing';
 import { auth } from '../utils/firebase';
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -47,6 +48,7 @@ export function Login() {
 
   // react-router
   const { state } = useLocation();
+  const history = useHistory();
 
   // react
   const [redirectToReferrer, setRedirectToReferrer] = React.useState(false);
@@ -177,6 +179,7 @@ export function Login() {
         });
       }
       setTimeout(() => {
+        // history.push(state?.from || '/');
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
@@ -197,10 +200,14 @@ export function Login() {
   // console.log('redirectToReferrer', redirectToReferrer);
   // console.log('state', state);
 
+  // continuing to onboarding page and then the wanted page
   if (redirectToReferrer === true) {
-    return <Redirect to={state?.from || '/'} />;
+    return (
+      <Redirect to={`/loginvalidation?to=${state?.from.pathname || '/'}`} />
+    );
+    // return <Redirect to={state?.from || '/'} />;
   }
-
+  console.log('state?.from 1599', state?.from);
   console.log(
     'emailPassword.email, emailPassword.password  repeatPassword emailPassword.quiz 1598',
     emailPassword.email,

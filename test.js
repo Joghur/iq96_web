@@ -1,11 +1,37 @@
-const arr1 = ['Formand', 'dfkujk'];
-const arr3 = ['jh', 'dfkujk'];
+const objWithEmptyKeys = {
+  displayName: '',
+  email: '',
+  firebaseUid: '',
+  iqId: [''],
+  roles: '',
+  token: '',
+  username: '',
+};
 
-const tdt = arr1.some(item => {
-  console.log('item', item);
-  console.log('arr3', arr3);
+const objwithNoEmptyKeys = {
+  displayName: '',
+  email: 'notEmpty',
+  firebaseUid: 'notEmpty',
+  iqId: [''],
+  roles: 'notEmpty',
+  token: 'notEmpty',
+  username: '',
+};
 
-  return arr3.includes(item);
-});
+const findEmptyKeysInObject = object => {
+  console.log('findEmptyKeysInObject.keys(object) 66', Object.keys(object));
+  let emptyKeys = [];
+  Object.keys(object).map(key => {
+    console.log('key 11', key);
+    console.log('value 22', object[key]);
+    console.log('object[key].length === 0 334', object[key].length === 0);
+    if (object[key].length === 0) emptyKeys.push(key);
+  });
+  return emptyKeys;
+};
 
-console.log('tdt', tdt);
+const test1 = findEmptyKeysInObject(objWithEmptyKeys);
+const test2 = findEmptyKeysInObject(objwithNoEmptyKeys);
+
+console.log('test1', test1);
+console.log('test2', test2);

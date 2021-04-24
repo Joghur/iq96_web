@@ -9,16 +9,18 @@ export function PrivateRoute({ children, authenticated, ...rest }) {
   const [user, setUser] = useRecoilState(userState);
 
   useEffect(async () => {
-    const user = auth().currentUser;
+    console.log('user 888', user);
+    const _user = auth().currentUser;
     let userData = {};
-    if (user)
+    if (_user)
       userData = {
-        displayName: user.displayName,
-        email: user.email,
-        firebaseUid: user.uid,
-        token: await user.getIdToken(),
+        displayName: _user.displayName,
+        email: _user.email,
+        firebaseUid: _user.uid,
+        token: await _user.getIdToken(),
       };
-    setUser(userData);
+    setUser(oldUser => ({ ...oldUser, userData }));
+    localStorage.setItem('user', JSON.stringify(user));
   }, []);
 
   return (

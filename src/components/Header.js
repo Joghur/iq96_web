@@ -14,8 +14,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { NavLink } from 'react-router-dom';
-import { useHistory } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import { logout } from '../utils/auth';
 import { userState } from '../Recoil';
 import { useRecoilState } from 'recoil';
@@ -92,12 +91,18 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function Header(props) {
+  const { handleDrawerToggle, mobileOpen } = props;
+
   // recoil
   const [user, setUser] = useRecoilState(userState);
 
+  // react-router
   const history = useHistory();
-  const { handleDrawerToggle, mobileOpen } = props;
+
+  // material-ui
   const classes = useStyles();
+
+  // react
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -137,6 +142,7 @@ export default function Header(props) {
       <MenuItem
         onClick={async () => {
           setUser({}); // clear recoil states
+          localStorage.setItem('user', null);
           logout();
           history.push('/');
         }}
@@ -188,6 +194,8 @@ export default function Header(props) {
     </Menu>
   );
 
+  console.log('user 4444', user);
+
   return (
     <div>
       <Toolbar>
@@ -207,7 +215,7 @@ export default function Header(props) {
           </NavLink>
         </Typography>
         <Typography className={classes.member} variant="h6" noWrap>
-          Velkommen {user.username}
+          Velkommen {user && user.username}
         </Typography>
         {/* <div className={classes.search}>
           <div className={classes.searchIcon}>

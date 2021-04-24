@@ -26,9 +26,12 @@ const ALL_USERS = gql`
 `;
 
 export const Users = () => {
+  // grapgQL
   const allUsers = useQuery(ALL_USERS, {
     fetchPolicy: 'cache-and-network',
   });
+
+  // recoil
   const [active, setActive] = useState(true);
 
   useEffect(() => {

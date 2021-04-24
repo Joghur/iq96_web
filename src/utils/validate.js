@@ -79,10 +79,31 @@ export const isEmptyObject = object => {
   console.log('Object.keys(object) 65', Object.keys(object));
   let isEmpty = true;
   Object.keys(object).map(key => {
-    console.log('key 1', key);
-    console.log('value 2', object[key]);
-    console.log('object[key].length > 0 333', object[key].length > 0);
+    // console.log('key 1', key);
+    // console.log('value 2', object[key]);
+    // console.log('object[key].length > 0 333', object[key].length > 0);
     if (object[key].length > 0) return (isEmpty = false);
   });
   return isEmpty;
+};
+
+export const findEmptyKeysInObject = object => {
+  console.log('Object.keys(object) 66', Object.keys(object));
+  let emptyKeys = [];
+  Object.keys(object).map(key => {
+    if (object[key] === '') emptyKeys.push(key);
+  });
+  console.log('emptyKeys 67', emptyKeys);
+  return emptyKeys;
+};
+
+export const findMissingKeysInObject = (missingObject, fullObject) => {
+  console.log('fullObject 67', Object.keys(fullObject));
+  console.log('missingObject 68', Object.keys(missingObject));
+  let missingKeys = [];
+  Object.keys(fullObject).map(key => {
+    if (!missingObject.hasOwnProperty(key)) missingKeys.push(key);
+  });
+  console.log('missingKeys 67', missingKeys);
+  return missingKeys;
 };

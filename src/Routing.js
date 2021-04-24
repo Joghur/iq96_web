@@ -38,6 +38,7 @@ import { Letters } from './screens/library/Letters';
 import { IFRAME_URL, IFRAME_COUNTDOWN } from './constants';
 import { PrivateRoute } from './components/PrivateRoute';
 import { Login } from './components/Login';
+import LoginValidation from './screens/LoginValidation';
 import Snackbar from './components/Snackbar';
 import { auth } from './utils/firebase';
 import { userState } from './Recoil';
@@ -125,19 +126,20 @@ function Routing() {
   const [user, setUser] = useRecoilState(userState);
 
   useEffect(() => {
-    auth().onAuthStateChanged(async user => {
-      // console.log('user 125', user);
-      if (user) {
+    auth().onAuthStateChanged(async _user => {
+      console.log('_user 125', _user);
+      console.log('user 126', user);
+      if (_user) {
         setAuthenticated(true);
         setLoading(false);
 
         const userData = {
-          displayName: user.displayName,
-          email: user.email,
-          firebaseUid: user.uid,
+          displayName: _user.displayName,
+          email: _user.email,
+          firebaseUid: _user.uid,
           token: await auth().currentUser.getIdToken(),
         };
-        setUser(userData);
+        setUser(oldUser => ({ ...oldUser, userData }));
       } else {
         setAuthenticated(false);
         setLoading(false);
@@ -251,6 +253,12 @@ function Routing() {
             <main>
               <Route exact path="/" component={OldSite} />
               <Route path="/login" component={Login} />
+              <PrivateRoute
+                path="/loginvalidation"
+                authenticated={authenticated}
+              >
+                <LoginValidation />
+              </PrivateRoute>
               <PrivateRoute path="/users" authenticated={authenticated}>
                 <Users />
               </PrivateRoute>
