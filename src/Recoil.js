@@ -12,7 +12,5 @@ export const initialUserStates = {
 
 export const userState = atom({
   key: 'userState',
-  default: JSON.parse(localStorage.getItem('user'))
-    ? JSON.parse(localStorage.getItem('user'))
-    : initialUserStates,
+  default: initialUserStates,
 });

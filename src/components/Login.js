@@ -139,14 +139,16 @@ export function Login() {
       fbUser = await loginFacebook();
       console.log('handleLoginFacebook user 105', fbUser);
       if (fbUser) {
-        setUser({
+        setUser(async oldUser => ({
+          ...oldUser,
           displayName: fbUser.displayName,
           email: fbUser.email,
           firebaseUid: fbUser.uid,
           token: await auth().currentUser.getIdToken(),
-        });
+        }));
       }
       setTimeout(() => {
+        // localStorage.setItem('user', JSON.stringify(user));
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
@@ -171,12 +173,13 @@ export function Login() {
       googleUser = await loginGoogle();
       console.log('loginGooghandleLoginGooglele googleUser 107', googleUser);
       if (googleUser) {
-        setUser({
+        setUser(async oldUser => ({
+          ...oldUser,
           displayName: googleUser.displayName,
           email: googleUser.email,
           firebaseUid: googleUser.uid,
           token: await auth().currentUser.getIdToken(),
-        });
+        }));
       }
       setTimeout(() => {
         // history.push(state?.from || '/');

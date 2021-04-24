@@ -126,8 +126,16 @@ function Routing() {
   const [user, setUser] = useRecoilState(userState);
 
   useEffect(() => {
+    let savedUser = JSON.parse(localStorage.getItem('user'));
+    console.log('savedUser 987', savedUser);
+    console.log('typeof savedUser 988', typeof savedUser);
+    if (typeof savedUser !== 'object') {
+      console.log('4545');
+      savedUser = {};
+    }
+
     auth().onAuthStateChanged(async _user => {
-      console.log('_user 125', _user);
+      // console.log('_user 125', _user);
       console.log('user 126', user);
       if (_user) {
         setAuthenticated(true);
@@ -139,7 +147,13 @@ function Routing() {
           firebaseUid: _user.uid,
           token: await auth().currentUser.getIdToken(),
         };
-        setUser(oldUser => ({ ...oldUser, userData }));
+        console.log('...savedUser 1', { ...savedUser });
+        console.log('...userData 1', { ...userData });
+        setUser(oldUser => ({ ...oldUser, ...savedUser, ...userData }));
+        setTimeout(() => {
+          console.log('user 127', user);
+          localStorage.setItem('user', JSON.stringify(user));
+        }, 300);
       } else {
         setAuthenticated(false);
         setLoading(false);

@@ -27,6 +27,11 @@ const ALL_USERS_FOR_LOGIN = gql`
 `;
 
 export default function LoginValidation() {
+  // fetching params info about where to redirect after this page
+  const url = new URL(window.location.href);
+  const params = new URLSearchParams(url.search);
+  const goto = params.get('to');
+
   // react
   const [missingKeys, setMissingKeys] = useState([]);
 
@@ -44,12 +49,15 @@ export default function LoginValidation() {
   // }, [user]);
 
   useEffect(() => {
-    const missing = findMissingKeysInObject(user, initialUserStates);
-    console.log('missing 481', missing);
-    // setMissingKeys(missing);
+    console.log('user 451', user);
+    const missingKeys = findMissingKeysInObject(user, initialUserStates);
+    const emptyKeys = findEmptyKeysInObject(user);
+    console.log('missingKeys 481', missingKeys);
+    console.log('emptyKeys 481', emptyKeys);
+    setMissingKeys(missingKeys);
     const users = allUsers?.data?.allUsers?.users;
     console.log('users 479', users);
-    if (missing.length > 0 && users) {
+    if ((missingKeys.length > 0 || emptyKeys.length > 0) && users) {
       // todo implement firbaseUid in server database
       const existingUser = users.filter(_user => {
         return _user.email === user.email || _user.workemail === user.email;
@@ -58,6 +66,7 @@ export default function LoginValidation() {
       console.log('existingUser.length > 0 4855', existingUser.length > 0);
       if (existingUser.length > 0) {
         console.log('user 4795', user);
+        console.log('existingUser[0].username 4796', existingUser[0].username);
         setUser({
           token: user.token,
           firebaseUid: user.firebaseUid,
@@ -68,13 +77,21 @@ export default function LoginValidation() {
           displayName: existingUser[0].name && existingUser[0].name,
         });
       }
-      localStorage.setItem('user', JSON.stringify(user));
-      history.push('/users');
     }
+    setTimeout(() => {
+      console.log('user 452', user);
+      localStorage.setItem('user', JSON.stringify(user));
+    }, 300);
   }, [user, allUsers?.data?.allUsers?.users]);
 
-  console.log('user 479', user);
-  console.log('missing 456', missingKeys);
+  console.log('user 480', user);
+  console.log('missingKeys 456', missingKeys);
+  console.log('missingKeys.length = 0 456', missingKeys.length === 0);
+  if (missingKeys.length === 0 && user.iqId !== '') {
+    console.log('missingKeys 457', missingKeys);
+    localStorage.setItem('user', JSON.stringify(user));
+    history.push(goto);
+  }
 
   const users = allUsers?.data?.allUsers?.users;
   // console.log('users 484', users);

@@ -19,7 +19,7 @@ export function PrivateRoute({ children, authenticated, ...rest }) {
         firebaseUid: _user.uid,
         token: await _user.getIdToken(),
       };
-    setUser(oldUser => ({ ...oldUser, userData }));
+    setUser(oldUser => ({ ...oldUser, ...userData }));
     localStorage.setItem('user', JSON.stringify(user));
   }, []);
 

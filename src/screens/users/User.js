@@ -29,6 +29,8 @@ import { MuiPickersUtilsProvider } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 import { KeyboardDatePicker } from '@material-ui/pickers';
 import validate from '../../utils/validate';
+import { userState } from '../../Recoil';
+import { useRecoilState } from 'recoil';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -58,6 +60,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+// slid in effect on dialog
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -243,11 +246,17 @@ const DELETE_USER = gql`
 `;
 
 export const User = () => {
+  // material-ui
   const classes = useStyles();
-  let { id } = useParams();
 
+  // react-router
+  let { id } = useParams();
   const history = useHistory();
 
+  // recoil
+  const [recoilUser, setRecoilUser] = useRecoilState(userState);
+
+  // apollo
   const userQuery = useQuery(USER, {
     skip: id === '-1',
     variables: { id: parseInt(id) },
