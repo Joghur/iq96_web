@@ -88,7 +88,10 @@ export const isEmptyObject = object => {
 };
 
 export const findEmptyKeysInObject = object => {
-  console.log('Object.keys(object) 66', Object.keys(object));
+  console.log(
+    'findEmptyKeysInObject Object.keys(object) 66',
+    Object.keys(object),
+  );
   let emptyKeys = [];
   Object.keys(object).map(key => {
     if (object[key] === '') emptyKeys.push(key);
@@ -99,7 +102,10 @@ export const findEmptyKeysInObject = object => {
 
 export const findMissingKeysInObject = (missingObject, fullObject) => {
   console.log('fullObject 67', Object.keys(fullObject));
-  console.log('missingObject 68', Object.keys(missingObject));
+  console.log(
+    'Objectwith potentiel missing keys 68',
+    Object.keys(missingObject),
+  );
   let missingKeys = [];
   Object.keys(fullObject).map(key => {
     if (!missingObject.hasOwnProperty(key)) missingKeys.push(key);

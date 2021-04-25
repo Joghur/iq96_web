@@ -18,6 +18,7 @@ import { NavLink, useHistory } from 'react-router-dom';
 import { logout } from '../utils/auth';
 import { userState } from '../Recoil';
 import { useRecoilState } from 'recoil';
+import { useCookies } from 'react-cookie';
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -106,6 +107,9 @@ export default function Header(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
+  // react-cookie
+  const [cookies, setCookie] = useCookies(['user']);
+
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
@@ -141,8 +145,8 @@ export default function Header(props) {
       {/* <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
       <MenuItem
         onClick={async () => {
+          setCookie('user', null, { path: '/' });
           setUser({}); // clear recoil states
-          localStorage.setItem('user', null);
           logout();
           history.push('/');
         }}

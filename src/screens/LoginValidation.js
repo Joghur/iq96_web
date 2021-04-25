@@ -7,7 +7,8 @@ import {
   findEmptyKeysInObject,
   findMissingKeysInObject,
 } from '../utils/validate';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Redirect } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 
 const ALL_USERS_FOR_LOGIN = gql`
   query allUsers {
@@ -30,35 +31,39 @@ export default function LoginValidation() {
   // fetching params info about where to redirect after this page
   const url = new URL(window.location.href);
   const params = new URLSearchParams(url.search);
-  const goto = params.get('to');
 
   // react
   const [missingKeys, setMissingKeys] = useState([]);
+  const [emptyKeys, setEmptyKeys] = useState([]);
+  const [goto, setGoto] = useState(params.get('to'));
+  const [redirectToReferrer2, setRedirectToReferrer2] = useState(false);
 
   // recoil
   const [user, setUser] = useRecoilState(userState);
 
-  //grapgQL
-  const allUsers = useQuery(ALL_USERS_FOR_LOGIN);
-
   // react-router
   const history = useHistory();
 
-  // useEffect(() => {
-  //   // console.log('user 479', user);
-  // }, [user]);
+  // react-cookie
+  const [cookies, setCookie] = useCookies(['user']);
+
+  //grapgQL
+  const allUsersForLogin = useQuery(ALL_USERS_FOR_LOGIN, {
+    fetchPolicy: 'network-only',
+  });
 
   useEffect(() => {
     console.log('user 451', user);
-    const missingKeys = findMissingKeysInObject(user, initialUserStates);
-    const emptyKeys = findEmptyKeysInObject(user);
-    console.log('missingKeys 481', missingKeys);
-    console.log('emptyKeys 481', emptyKeys);
-    setMissingKeys(missingKeys);
-    const users = allUsers?.data?.allUsers?.users;
+    const missing = findMissingKeysInObject(user, initialUserStates);
+    const empty = findEmptyKeysInObject(user);
+    console.log('missingKeys 481', missing);
+    console.log('empty (keys in object) 481', empty);
+    setMissingKeys(missing);
+    setEmptyKeys(empty);
+    const users = allUsersForLogin?.data?.allUsers?.users;
     console.log('users 479', users);
     if ((missingKeys.length > 0 || emptyKeys.length > 0) && users) {
-      // todo implement firbaseUid in server database
+      // todo implement firebaseUid in server database
       const existingUser = users.filter(_user => {
         return _user.email === user.email || _user.workemail === user.email;
       });
@@ -67,33 +72,45 @@ export default function LoginValidation() {
       if (existingUser.length > 0) {
         console.log('user 4795', user);
         console.log('existingUser[0].username 4796', existingUser[0].username);
-        setUser({
-          token: user.token,
+        setUser(oldUser => ({
           firebaseUid: user.firebaseUid,
           email: user.email,
           iqId: existingUser[0].id,
           username: existingUser[0].username,
           roles: existingUser[0].roles,
-          displayName: existingUser[0].name && existingUser[0].name,
-        });
+          displayName: existingUser[0].name
+            ? existingUser[0].name
+            : oldUser.displayName,
+        }));
+      } else {
+        console.log('no existing user 4797');
       }
     }
-    setTimeout(() => {
-      console.log('user 452', user);
-      localStorage.setItem('user', JSON.stringify(user));
-    }, 300);
-  }, [user, allUsers?.data?.allUsers?.users]);
+  }, [allUsersForLogin.loading]);
 
-  console.log('user 480', user);
-  console.log('missingKeys 456', missingKeys);
-  console.log('missingKeys.length = 0 456', missingKeys.length === 0);
-  if (missingKeys.length === 0 && user.iqId !== '') {
+  useEffect(() => {
+    const users = allUsersForLogin?.data?.allUsers?.users;
+    console.log('users 480', users);
+    console.log('user 481', user);
+    console.log('missingKeys 482', missingKeys);
+    console.log('emptyKeys 483', emptyKeys);
+    // if (users && missingKeys.length === 0 && emptyKeys.length === 0) {
     console.log('missingKeys 457', missingKeys);
-    localStorage.setItem('user', JSON.stringify(user));
-    history.push(goto);
-  }
+    if (user.firebaseUid && user.iqId) {
+      setCookie('user', JSON.stringify(user), { path: '/' });
+      setRedirectToReferrer2(true);
+    }
+    // }
+  }, [missingKeys, emptyKeys, user]);
 
-  const users = allUsers?.data?.allUsers?.users;
+  console.log('missingKeys 456', missingKeys);
+  console.log('missingKeys.length === 0 456', missingKeys.length === 0);
+  // console.log('!user.iqId 456', !user.iqId);
+  console.log('emptyKeys.length === 0 456', emptyKeys.length === 0);
+  console.log('user 456', user);
+
+  console.log('redirectToReferrer2 13', redirectToReferrer2);
+  // const users = allUsers?.data?.allUsers?.users;
   // console.log('users 484', users);
 
   // useEffect(() => {
@@ -106,6 +123,15 @@ export default function LoginValidation() {
   //   }
   // }, [allUsers?.data]);
 
+  if (allUsersForLogin.loading) {
+    return <div>Henter data.</div>;
+  }
+
+  // continuing to onboarding page and then the wanted page
+  if (redirectToReferrer2) {
+    console.log("`${goto || '/'}` 14", `${goto || '/'}`);
+    return <Redirect to={`${goto || '/'}`} />;
+  }
   return (
     <>
       <div>LoginValidation</div>

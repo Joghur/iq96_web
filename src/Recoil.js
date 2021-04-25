@@ -6,11 +6,17 @@ export const initialUserStates = {
   firebaseUid: '',
   iqId: '',
   roles: [],
-  token: '',
   username: '',
 };
 
 export const userState = atom({
   key: 'userState',
   default: initialUserStates,
+});
+
+export const tokenState = atom({
+  key: 'tokenState',
+  default: {
+    token: '',
+  },
 });

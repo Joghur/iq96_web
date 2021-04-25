@@ -41,8 +41,9 @@ import { Login } from './components/Login';
 import LoginValidation from './screens/LoginValidation';
 import Snackbar from './components/Snackbar';
 import { auth } from './utils/firebase';
-import { userState } from './Recoil';
+import { userState, tokenState } from './Recoil';
 import { useRecoilState } from 'recoil';
+import { useCookies } from 'react-cookie';
 
 const drawerWidth = 240;
 const usersMenuItems = [
@@ -118,48 +119,118 @@ function Routing() {
   const theme = useTheme();
 
   // react
+  // Set an initializing state whilst Firebase connects
+  const [initializing, setInitializing] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   // recoil
   const [user, setUser] = useRecoilState(userState);
+  const [token, setToken] = useRecoilState(tokenState);
+
+  // react-cookie
+  const [cookies, setCookie] = useCookies(['user']);
+
+  // useEffect(() => {
+  //   const listener = auth().onAuthStateChanged(async _user => {
+  //     console.log('cookies 5', cookies);
+  //     let savedUser = {};
+  //     if (cookies) {
+  //       savedUser = cookies.user;
+  //     }
+  //     console.log('savedUser 987', savedUser);
+  //     console.log('typeof savedUser 988', typeof savedUser);
+  //     if (typeof savedUser !== 'object') {
+  //       console.log('4545');
+  //       savedUser = {};
+  //     }
+  //     console.log('savedUser 989', savedUser);
+  //     // console.log('_user 125', _user);
+  //     console.log('user 126', user);
+  //     if (_user) {
+  //       setAuthenticated(true);
+  //       setLoading(false);
+
+  //       // refreshing token
+  //       const userData = {
+  //         // token: await auth().currentUser.getIdToken(),
+  //         // displayName: _user.displayName,
+  //         email: _user.email,
+  //         // firebaseUid: _user.uid,
+  //       };
+  //       console.log('...savedUser 1a', { ...savedUser });
+  //       console.log('...userDataUser 1a', { ...userData });
+  //       setToken({ token: await auth().currentUser.getIdToken() });
+  //       setUser(oldUser => {
+  //         console.log('oldUser 1a', oldUser);
+  //         // const sum = { ...oldUser, ...savedUser, ...userData };
+  //         const sum = { ...oldUser, ...savedUser, ...userData };
+  //         console.log('sum 2aa', sum);
+  //         return sum;
+  //       });
+  //     } else {
+  //       setAuthenticated(false);
+  //       setLoading(false);
+  //     }
+  //   });
+  //   return listener;
+  // }, []);
+
+  /**
+   * starts auth listener
+   *
+   * When another function changed the auth object this listener notice and
+   * the user is changed in redux
+   */
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+  const onAuthStateChanged = async userStateHandler => {
+    if (userStateHandler) {
+      setAuthenticated(true);
+
+      const userData = {
+        displayName: userStateHandler.displayName,
+        email: userStateHandler.email,
+        firebaseUid: userStateHandler.uid,
+      };
+      setUser(userData);
+
+      // refresh firebase token and update recoil value so apolloclient will use updated token
+      const token = await auth().currentUser.getIdToken();
+      setToken({ token });
+    }
+    if (initializing) setInitializing(false);
+  };
+
+  console.log('initializing 32', initializing);
 
   useEffect(() => {
-    let savedUser = JSON.parse(localStorage.getItem('user'));
+    console.log('cookies 5', cookies);
+    let savedUser = {};
+    if (cookies) {
+      savedUser = cookies.user;
+    }
     console.log('savedUser 987', savedUser);
     console.log('typeof savedUser 988', typeof savedUser);
     if (typeof savedUser !== 'object') {
       console.log('4545');
       savedUser = {};
     }
+    console.log('savedUser 989', savedUser);
+    // console.log('userStateHandler 125', userStateHandler);
+    console.log('user 126', user);
 
-    auth().onAuthStateChanged(async _user => {
-      // console.log('_user 125', _user);
-      console.log('user 126', user);
-      if (_user) {
-        setAuthenticated(true);
-        setLoading(false);
-
-        const userData = {
-          displayName: _user.displayName,
-          email: _user.email,
-          firebaseUid: _user.uid,
-          token: await auth().currentUser.getIdToken(),
-        };
-        console.log('...savedUser 1', { ...savedUser });
-        console.log('...userData 1', { ...userData });
-        setUser(oldUser => ({ ...oldUser, ...savedUser, ...userData }));
-        setTimeout(() => {
-          console.log('user 127', user);
-          localStorage.setItem('user', JSON.stringify(user));
-        }, 300);
-      } else {
-        setAuthenticated(false);
-        setLoading(false);
-      }
+    setUser(oldUser => {
+      console.log('oldUser 1a', oldUser);
+      console.log('savedUser 1a', savedUser);
+      const sum = { ...savedUser, ...oldUser };
+      console.log('savedUser + oldUser 2aa', sum);
+      return sum;
     });
-  }, []);
+  }, [initializing]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -219,8 +290,8 @@ function Routing() {
     );
   };
 
-  if (loading) {
-    return <Snackbar severity="info">Henter....</Snackbar>;
+  if (initializing) {
+    return <p>Henter....</p>;
   }
 
   console.log('authenticated 548', authenticated);

@@ -269,6 +269,7 @@ export const User = () => {
   const [createUser] = useMutation(CREATE_USER);
   const [deleteUser] = useMutation(DELETE_USER);
 
+  // react
   const emptyUser = {
     size: '',
     mobile: '',
@@ -290,7 +291,9 @@ export const User = () => {
   const [didChange, setDidChange] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState({});
-  const [openDialog, setOpenDialog] = React.useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (id !== '-1') setUser(userQuery.data?.user?.user);
@@ -299,6 +302,18 @@ export const User = () => {
   useEffect(() => {
     userQuery.refetch();
   }, []);
+
+  useEffect(() => {
+    if (recoilUser?.roles) {
+      recoilUser.roles.map(item => {
+        if (item.role === 'admin') setIsAdmin(true);
+        if (item.role === 'superadmin') {
+          setIsAdmin(true);
+          setIsSuperAdmin(true);
+        }
+      });
+    }
+  }, [recoilUser]);
 
   if (userQuery.loading) return <div>Henter Med-Lem...</div>;
   if (userQuery.error)
@@ -310,11 +325,13 @@ export const User = () => {
   if (userQuery.data?.user?.errors)
     return <Snackbar severity="error">Kunne ikke finde Med-Lem</Snackbar>;
 
-  // console.log('user', user);
-  // console.log('data', data?.updateUser?.id);
-  // console.log('error', error);
-  // console.log('errorMessage', errorMessage);
-  // console.log('deleteUser.data', deleteUser.data);
+  // console.log('user 1', user);
+  // console.log('data 2', data?.updateUser?.id);
+  // console.log('error 3 ', error);
+  // console.log('errorMessage 4', errorMessage);
+  // console.log('deleteUser.data 5', deleteUser.data);
+  console.log('isAdmin 6', isAdmin);
+  console.log('isSuperAdmin 6', isSuperAdmin);
 
   // Handles all changes
   const handleChange = (event, secondParam) => {

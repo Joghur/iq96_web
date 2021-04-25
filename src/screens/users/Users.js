@@ -75,7 +75,7 @@ export const Users = () => {
     return (
       <Snackbar severity="error">Kunne ikke hente Med-Lems liste</Snackbar>
     );
-  // console.log('allUsers.data', allUsers.data);
+  console.log('allUsers.data', allUsers.data);
   return (
     <>
       {allUsers.data?.allUsers && (

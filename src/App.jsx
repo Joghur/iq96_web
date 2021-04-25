@@ -8,10 +8,12 @@ import {
 import { useRecoilValue } from 'recoil';
 import Routing from './Routing';
 import { SERVER_URL } from './constants';
-import { userState } from './Recoil';
+import { tokenState } from './Recoil';
 
 function App() {
-  const user = useRecoilValue(userState);
+  const token = useRecoilValue(tokenState);
+
+  console.log('App token 1000', token);
 
   const httpLink = new HttpLink({
     uri: `${SERVER_URL}/graphql`,
@@ -21,7 +23,7 @@ function App() {
     // Use the setContext method to set the HTTP headers.
     operation.setContext({
       headers: {
-        authorization: user.token || '',
+        authorization: token.token || '',
       },
     });
 

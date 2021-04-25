@@ -113,8 +113,18 @@ export function Login() {
     if (!isEmptyObject(errorMessage) || emailPassword.quiz.length === 0) {
       return;
     }
+    let emailUser;
     try {
-      await signup(emailPassword.email, emailPassword.password);
+      emailUser = await signup(emailPassword.email, emailPassword.password);
+      console.log('_signup emailUser 15', emailUser);
+      if (emailUser) {
+        // setUser({});
+        setUser(async oldUser => ({
+          ...oldUser,
+          email: emailUser.email,
+          firebaseUid: emailUser.uid,
+        }));
+      }
       setTimeout(() => {
         setRedirectToReferrer(true);
       }, 500);
@@ -139,16 +149,18 @@ export function Login() {
       fbUser = await loginFacebook();
       console.log('handleLoginFacebook user 105', fbUser);
       if (fbUser) {
-        setUser(async oldUser => ({
-          ...oldUser,
-          displayName: fbUser.displayName,
-          email: fbUser.email,
-          firebaseUid: fbUser.uid,
-          token: await auth().currentUser.getIdToken(),
-        }));
+        // setUser({});
+        setUser(oldUser => {
+          console.log('oldUser 587', oldUser);
+          return {
+            ...oldUser,
+            displayName: fbUser.displayName,
+            // email: fbUser.email,
+            firebaseUid: fbUser.uid,
+          };
+        });
       }
       setTimeout(() => {
-        // localStorage.setItem('user', JSON.stringify(user));
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
@@ -173,16 +185,14 @@ export function Login() {
       googleUser = await loginGoogle();
       console.log('loginGooghandleLoginGooglele googleUser 107', googleUser);
       if (googleUser) {
-        setUser(async oldUser => ({
+        setUser(oldUser => ({
           ...oldUser,
           displayName: googleUser.displayName,
           email: googleUser.email,
           firebaseUid: googleUser.uid,
-          token: await auth().currentUser.getIdToken(),
         }));
       }
       setTimeout(() => {
-        // history.push(state?.from || '/');
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
@@ -200,16 +210,14 @@ export function Login() {
   };
 
   console.log('isEmptyObject(errorMessage 6', isEmptyObject(errorMessage));
-  // console.log('redirectToReferrer', redirectToReferrer);
-  // console.log('state', state);
 
   // continuing to onboarding page and then the wanted page
   if (redirectToReferrer === true) {
     return (
       <Redirect to={`/loginvalidation?to=${state?.from.pathname || '/'}`} />
     );
-    // return <Redirect to={state?.from || '/'} />;
   }
+
   console.log('state?.from 1599', state?.from);
   console.log(
     'emailPassword.email, emailPassword.password  repeatPassword emailPassword.quiz 1598',

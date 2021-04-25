@@ -1,27 +1,25 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import { auth } from '../utils/firebase';
-import { userState } from '../Recoil';
-import { useRecoilState } from 'recoil';
+// import { auth } from '../utils/firebase';
+// import { userState } from '../Recoil';
+// import { useRecoilState } from 'recoil';
 
 export function PrivateRoute({ children, authenticated, ...rest }) {
   console.log('authenticated 15', authenticated);
-  const [user, setUser] = useRecoilState(userState);
+  // const [user, setUser] = useRecoilState(userState);
 
-  useEffect(async () => {
-    console.log('user 888', user);
-    const _user = auth().currentUser;
-    let userData = {};
-    if (_user)
-      userData = {
-        displayName: _user.displayName,
-        email: _user.email,
-        firebaseUid: _user.uid,
-        token: await _user.getIdToken(),
-      };
-    setUser(oldUser => ({ ...oldUser, ...userData }));
-    localStorage.setItem('user', JSON.stringify(user));
-  }, []);
+  // useEffect(async () => {
+  //   console.log('user 888', user);
+  //   const _user = auth().currentUser;
+  //   let userData = {};
+  //   if (_user)
+  //     userData = {
+  //       displayName: _user.displayName,
+  //       email: _user.email,
+  //       firebaseUid: _user.uid,
+  //     };
+  //   setUser(oldUser => ({ ...oldUser, ...userData }));
+  // }, []);
 
   return (
     <Route
