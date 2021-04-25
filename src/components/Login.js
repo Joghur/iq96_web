@@ -118,7 +118,6 @@ export function Login() {
       emailUser = await signup(emailPassword.email, emailPassword.password);
       console.log('_signup emailUser 15', emailUser);
       if (emailUser) {
-        // setUser({});
         setUser(async oldUser => ({
           ...oldUser,
           email: emailUser.email,
@@ -149,7 +148,6 @@ export function Login() {
       fbUser = await loginFacebook();
       console.log('handleLoginFacebook user 105', fbUser);
       if (fbUser) {
-        // setUser({});
         setUser(oldUser => {
           console.log('oldUser 587', oldUser);
           return {
@@ -188,7 +186,7 @@ export function Login() {
         setUser(oldUser => ({
           ...oldUser,
           displayName: googleUser.displayName,
-          email: googleUser.email,
+          // email: googleUser.email,
           firebaseUid: googleUser.uid,
         }));
       }

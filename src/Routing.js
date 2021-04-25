@@ -188,7 +188,8 @@ function Routing() {
   }, []);
 
   const onAuthStateChanged = async userStateHandler => {
-    if (userStateHandler) {
+    console.log('userStateHandler 98', userStateHandler);
+    if (userStateHandler?.email) {
       setAuthenticated(true);
 
       const userData = {
@@ -201,11 +202,15 @@ function Routing() {
       // refresh firebase token and update recoil value so apolloclient will use updated token
       const token = await auth().currentUser.getIdToken();
       setToken({ token });
+    } else {
+      setAuthenticated(false);
     }
     if (initializing) setInitializing(false);
   };
 
   console.log('initializing 32', initializing);
+  console.log('user 33', user);
+  console.log('token 34', token);
 
   useEffect(() => {
     console.log('cookies 5', cookies);
