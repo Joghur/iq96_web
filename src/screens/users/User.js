@@ -139,6 +139,8 @@ const USER = gql`
         workemail
         workphone
         size
+        firebaseemail
+        firebaseuid
         roles {
           id
           role
@@ -175,6 +177,8 @@ const UPDATE_USER = gql`
     $workphone: String!
     $size: String!
     $roles: [Int!]!
+    $firebaseemail: String!
+    $firebaseuid: String!
   ) {
     updateUser(
       id: $id
@@ -191,6 +195,8 @@ const UPDATE_USER = gql`
       workphone: $workphone
       size: $size
       roles: $roles
+      firebaseuid: $firebaseuid
+      firebaseemail: $firebaseemail
     ) {
       user {
         id
@@ -286,7 +292,6 @@ export const User = () => {
     roles: [],
     password: 'test',
   };
-
   const [user, setUser] = useState(emptyUser);
   const [didChange, setDidChange] = useState(false);
   const [error, setError] = useState(false);
@@ -316,16 +321,15 @@ export const User = () => {
   }, [recoilUser]);
 
   if (userQuery.loading) return <div>Henter Med-Lem...</div>;
-  if (userQuery.error)
-    return (
-      <Snackbar severity="error">
-        Kunne ikke hente Med-Lem. Netværksproblem?
-      </Snackbar>
-    );
-  if (userQuery.data?.user?.errors)
-    return <Snackbar severity="error">Kunne ikke finde Med-Lem</Snackbar>;
 
-  // console.log('user 1', user);
+  if (userQuery.error)
+    return <div>Kunne ikke hente Med-Lem. Netværksproblem?</div>;
+
+  if (userQuery.data?.user?.errors) return <div>Kunne ikke finde Med-Lem</div>;
+
+  console.log('user 1', user);
+  console.log('user 1', user?.firebaseuid);
+  console.log('user 1', user?.firebaseemail);
   // console.log('data 2', data?.updateUser?.id);
   // console.log('error 3 ', error);
   // console.log('errorMessage 4', errorMessage);
@@ -333,7 +337,12 @@ export const User = () => {
   console.log('isAdmin 6', isAdmin);
   console.log('isSuperAdmin 6', isSuperAdmin);
 
-  // Handles all changes
+  /**
+   * Handles all form changes including validation
+   *
+   * @param {*} event
+   * @param {*} secondParam
+   */
   const handleChange = (event, secondParam) => {
     let isError = false;
     let id = event?.target?.id;
@@ -380,11 +389,11 @@ export const User = () => {
       value = checked;
     }
 
-    const validated = validate(id, value);
+    const validated = validate(id, value, isAdmin, isSuperAdmin);
 
     console.log('validated', validated);
 
-    // if something is not validated exit function and set error states
+    // if something is not validated set error states
     if (validated.errorMessage) {
       setErrorMessage({ [id]: validated.errorMessage });
       setError(true);
@@ -394,7 +403,11 @@ export const User = () => {
       setError(false);
     }
 
-    setDidChange(true);
+    if (validated.ok) {
+      setDidChange(true);
+    } else {
+      setDidChange(false);
+    }
 
     console.log('id out', id);
 
@@ -416,6 +429,7 @@ export const User = () => {
               style={{ marginLeft: 10 }}
               onClick={e => {
                 e.preventDefault();
+                console.log('updateUser onClick user 98', user);
                 id !== '-1'
                   ? updateUser({
                       variables: {
@@ -436,6 +450,10 @@ export const User = () => {
                         workphone: user.workphone,
                         size: user.size,
                         roles: user.roles.map(role => role.id),
+                        firebaseuid: user.firebaseuid ? user.firebaseuid : '',
+                        firebaseemail: user.firebaseemail
+                          ? user.firebaseemail
+                          : '',
                       },
                     })
                   : createUser({
@@ -456,7 +474,7 @@ export const User = () => {
                         workphone: user.workphone,
                         size: user.size,
                         roles: user.roles.map(role => role.id),
-                        password: 'test',
+                        password: 'testing',
                       },
                     });
                 history.goBack();

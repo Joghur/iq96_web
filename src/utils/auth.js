@@ -11,7 +11,6 @@ export function signin(email, password) {
 
 export function logout() {
   console.log('logout 1584');
-  localStorage.removeItem('auth_token');
   return auth().signOut();
 }
 

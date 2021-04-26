@@ -16,7 +16,7 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { NavLink, useHistory } from 'react-router-dom';
 import { logout } from '../utils/auth';
-import { userState } from '../Recoil';
+import { tokenState, userState } from '../Recoil';
 import { useRecoilState } from 'recoil';
 import { useCookies } from 'react-cookie';
 
@@ -96,6 +96,7 @@ export default function Header(props) {
 
   // recoil
   const [user, setUser] = useRecoilState(userState);
+  const [token, setToken] = useRecoilState(tokenState);
 
   // react-router
   const history = useHistory();
@@ -145,9 +146,10 @@ export default function Header(props) {
       {/* <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
       <MenuItem
         onClick={async () => {
-          setCookie('user', null, { path: '/' });
-          setUser({}); // clear recoil states
-          logout();
+          setCookie('user', null, { path: '/' }); // clear cookie
+          setUser({}); // clear recoil state
+          setToken({}); // clear recoil state
+          logout(); // logout of firebase
           history.push('/');
         }}
       >

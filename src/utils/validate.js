@@ -2,42 +2,52 @@ import { isEmail, isPhoneNumber, isProperPassword } from './regexPatterns';
 import translations from './translations';
 import { quiz } from './secrets';
 
-export default (id, value) => {
-  let ok = false;
+export default (id, value, isAdmin, isSuperAdmin) => {
+  let ok = true;
+  let noError = true;
   let correctedValue = value; // initial value - some id's will change this
   let errorMessage = '';
-  console.log('id 4', id);
+
+  if (!isAdmin && !isSuperAdmin) {
+    return {
+      ok: false,
+      value: correctedValue,
+      errorMessage: 'Kun admin kan gemme ændret værdi',
+    };
+  }
+
+  console.log('id 4, isAdmin, isSuperAdmin', id, isAdmin, isSuperAdmin);
   switch (id) {
     case 'name':
     case 'username':
     case 'work':
     case 'address':
       correctedValue = value.replace(/[\\]|[\+]|[\;]|[\:]|[\"]/g, ''); // removing \ and +
-      ok = true;
+      noError = true;
       break;
 
     case 'password':
     case 'repeatPassword':
       correctedValue = value;
       if (correctedValue.length >= 6) {
-        ok = true;
+        noError = true;
         break;
       }
-      ok = false;
+      noError = false;
       break;
 
     case 'quiz':
       correctedValue = value;
       if (correctedValue.toLowerCase() === quiz && correctedValue.length > 0) {
-        ok = true;
+        noError = true;
         break;
       }
-      ok = false;
+      noError = false;
       break;
 
     case 'email':
     case 'workemail':
-      ok = isEmail(value);
+      noError = isEmail(value);
       break;
 
     case 'phone':
@@ -48,23 +58,26 @@ export default (id, value) => {
         .replace(/ /g, '') // removing all spaces
         .replace(/(\d{2})/g, '$1 ') // put in spaces between 2 digits
         .trim(); // remove the last space put in by above
-      ok = isPhoneNumber(correctedValue);
+      noError = isPhoneNumber(correctedValue);
       break;
 
     case 'birthday':
-      ok = true;
+      noError = true;
       break;
 
     case 'active':
     case 'size':
+      noError = true;
+      break;
+
     case 'roles':
-      ok = true;
+      noError = true;
       break;
   }
 
-  if (!ok) errorMessage = `${translations[id]} er ikke formet rigtig`;
+  if (!noError) errorMessage = `${translations[id]} er ikke formet rigtig`;
   if (!correctedValue) {
-    ok = true;
+    noError = true;
     errorMessage = '';
   } // value may and can be empty
 

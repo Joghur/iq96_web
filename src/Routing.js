@@ -131,51 +131,6 @@ function Routing() {
   // react-cookie
   const [cookies, setCookie] = useCookies(['user']);
 
-  // useEffect(() => {
-  //   const listener = auth().onAuthStateChanged(async _user => {
-  //     console.log('cookies 5', cookies);
-  //     let savedUser = {};
-  //     if (cookies) {
-  //       savedUser = cookies.user;
-  //     }
-  //     console.log('savedUser 987', savedUser);
-  //     console.log('typeof savedUser 988', typeof savedUser);
-  //     if (typeof savedUser !== 'object') {
-  //       console.log('4545');
-  //       savedUser = {};
-  //     }
-  //     console.log('savedUser 989', savedUser);
-  //     // console.log('_user 125', _user);
-  //     console.log('user 126', user);
-  //     if (_user) {
-  //       setAuthenticated(true);
-  //       setLoading(false);
-
-  //       // refreshing token
-  //       const userData = {
-  //         // token: await auth().currentUser.getIdToken(),
-  //         // displayName: _user.displayName,
-  //         email: _user.email,
-  //         // firebaseUid: _user.uid,
-  //       };
-  //       console.log('...savedUser 1a', { ...savedUser });
-  //       console.log('...userDataUser 1a', { ...userData });
-  //       setToken({ token: await auth().currentUser.getIdToken() });
-  //       setUser(oldUser => {
-  //         console.log('oldUser 1a', oldUser);
-  //         // const sum = { ...oldUser, ...savedUser, ...userData };
-  //         const sum = { ...oldUser, ...savedUser, ...userData };
-  //         console.log('sum 2aa', sum);
-  //         return sum;
-  //       });
-  //     } else {
-  //       setAuthenticated(false);
-  //       setLoading(false);
-  //     }
-  //   });
-  //   return listener;
-  // }, []);
-
   /**
    * starts auth listener
    *
@@ -200,6 +155,7 @@ function Routing() {
       setUser(userData);
 
       // refresh firebase token and update recoil value so apolloclient will use updated token
+      // when fetching from graphQL server
       const token = await auth().currentUser.getIdToken();
       setToken({ token });
     } else {
@@ -296,7 +252,7 @@ function Routing() {
   };
 
   if (initializing) {
-    return <p>Henter....</p>;
+    return <Snackbar severity="info">Henter....</Snackbar>;
   }
 
   console.log('authenticated 548', authenticated);

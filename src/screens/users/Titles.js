@@ -75,8 +75,7 @@ export const Titles = () => {
   }
 
   if (allTitledUsers.loading) return <div>Henter Titler...</div>;
-  if (allTitledUsers.error)
-    return <Snackbar severity="error">Kunne ikke hente Titler</Snackbar>;
+  if (allTitledUsers.error) return <div>Kunne ikke hente Titler</div>;
 
   return (
     <>

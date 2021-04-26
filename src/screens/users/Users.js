@@ -4,6 +4,9 @@ import { useQuery } from '@apollo/client';
 import Table from '../../components/Tables';
 import { removeSpaces } from '../../utils/strings';
 import Snackbar from '../../components/Snackbar';
+import { auth } from '../../utils/firebase';
+import { tokenState } from '../../Recoil';
+import { useRecoilState } from 'recoil';
 
 const ALL_USERS = gql`
   query allUsers {
@@ -32,10 +35,17 @@ export const Users = () => {
   });
 
   // recoil
-  const [active, setActive] = useState(true);
+  const [token, setToken] = useRecoilState(tokenState);
 
   useEffect(() => {
     allUsers.refetch();
+  }, []);
+
+  useEffect(async () => {
+    // refresh firebase token and update recoil value so apolloclient will use updated token
+    // when fetching from graphQL server
+    const token = await auth().currentUser.getIdToken();
+    setToken({ token });
   }, []);
 
   const headCells = [
