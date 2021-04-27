@@ -3,9 +3,11 @@ import { userState, initialUserStates } from '../Recoil';
 import { useRecoilState } from 'recoil';
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from '@apollo/client';
+import { Button } from '@material-ui/core';
 import {
   findEmptyKeysInObject,
   findMissingKeysInObject,
+  isEmptyObject,
 } from '../utils/validate';
 import { useHistory, Redirect } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
@@ -98,6 +100,8 @@ export default function LoginValidation() {
   const [goto, setGoto] = useState(params.get('to'));
   const [redirectToReferrer2, setRedirectToReferrer2] = useState(false);
   const [userFromGraphQL, setUserFromGraphQL] = useState({});
+  const [missingMember, setMissingMember] = useState(false);
+  const [foundMember, setFoundMember] = useState({});
 
   // recoil
   const [user, setUser] = useRecoilState(userState);
@@ -117,52 +121,67 @@ export default function LoginValidation() {
   );
 
   useEffect(() => {
-    console.log('user 451', user);
+    console.log('user 4796', user);
     const missing = findMissingKeysInObject(user, initialUserStates);
     const empty = findEmptyKeysInObject(user);
-    console.log('missingKeys 481', missing);
-    console.log('empty (keys in object) 481', empty);
+    console.log('missingKeys 4796', missing);
+    console.log('empty (keys in object) 4796', empty);
     setMissingKeys(missing);
     setEmptyKeys(empty);
     const users = allUsersForLogin?.data?.allUsers?.users;
-    console.log('users 479', users);
+    console.log('users 4796', users);
     if ((missingKeys.length > 0 || emptyKeys.length > 0) && users) {
       // todo implement firebaseUid in server database
-      const existingUser = users.filter(_user => {
+      const gotUserByEmail = users.filter(_user => {
         return _user.email === user.email || _user.workemail === user.email;
       });
-      console.log('existingUser 4854', existingUser);
-      console.log('existingUser.length > 0 4855', existingUser.length > 0);
-      if (existingUser.length > 0) {
-        console.log('user 4795', user);
-        console.log('existingUser[0] 4796', existingUser[0]);
+      console.log('gotUserByEmail 4796', gotUserByEmail);
+      console.log('gotUserByEmail.length > 0 4796', gotUserByEmail.length > 0);
+      let existingUser;
+      if (gotUserByEmail.length > 0) {
+        existingUser = gotUserByEmail[0];
+      } else if (foundMember) {
+        existingUser = foundMember;
+      }
+      console.log(
+        'existingUser // - isEmptyObject(existingUser) 4796',
+        existingUser,
+        // isEmptyObject(existingUser),
+      );
+      console.log('gotUserByEmail 4796', gotUserByEmail);
+      console.log('foundMember 4796', foundMember);
+      if (!isEmptyObject(existingUser)) {
+        console.log('user 4796', user);
         setUser(oldUser => ({
           firebaseUid: user.firebaseUid,
           email: user.email,
-          iqId: existingUser[0].id,
-          username: existingUser[0].username,
-          roles: existingUser[0].roles,
-          displayName: existingUser[0].name
-            ? existingUser[0].name
+          iqId: existingUser.id,
+          username: existingUser.username,
+          roles: existingUser.roles,
+          displayName: existingUser.name
+            ? existingUser.name
             : oldUser.displayName,
         }));
-        setUserFromGraphQL(existingUser[0]);
+        // whole user needed when updating db.
+        setUserFromGraphQL(existingUser);
       } else {
-        console.log('no existing user 4797');
-        console.log('users[25].username 4798', users[25].username);
-        console.log('users[25] 4799', users[25]);
-        setUser(oldUser => ({
-          firebaseUid: user.firebaseUid,
-          email: user.email,
-          iqId: users[25].id,
-          username: users[25].username,
-          roles: users[25].roles,
-          displayName: users[25].name ? users[25].name : oldUser.displayName,
-        }));
-        setUserFromGraphQL(users[25]);
+        console.log('no existing user 4796');
+        setMissingMember(true);
+        // console.log('users[25].username 4798', users[25].username);
+        // console.log('users[25] 4799', users[25]);
+        // setUser(oldUser => ({
+        //   firebaseUid: user.firebaseUid,
+        //   email: user.email,
+        //   iqId: users[25].id,
+        //   username: users[25].username,
+        //   roles: users[25].roles,
+        //   displayName: users[25].name ? users[25].name : oldUser.displayName,
+        // }));
+        // // whole user needed when updating db.
+        // setUserFromGraphQL(users[25]);
       }
     }
-  }, [allUsersForLogin.loading]);
+  }, [allUsersForLogin.loading, foundMember]);
 
   useEffect(() => {
     const users = allUsersForLogin?.data?.allUsers?.users;
@@ -184,10 +203,10 @@ export default function LoginValidation() {
   }, [missingKeys, emptyKeys, user]);
 
   const handleUpdateUserWithFirebaseInfo = () => {
-    console.log('handleUpdateUserWithFirebaseInfo user 74', user);
-    console.log('userFromGraphQL 76', userFromGraphQL);
-    console.log('user.firebaseUid 777', user.firebaseUid);
-    console.log('user.email 778', user.email);
+    console.log('handleUpdateUserWithFirebaseInfo user 456', user);
+    console.log('userFromGraphQL 456', userFromGraphQL);
+    console.log('user.firebaseUid 456', user.firebaseUid);
+    console.log('user.email 456', user.email);
     updateUserWithFirebaseInfo({
       variables: {
         id: user.iqId,
@@ -210,13 +229,14 @@ export default function LoginValidation() {
     });
   };
 
-  console.log('missingKeys 456', missingKeys);
-  console.log('missingKeys.length === 0 456', missingKeys.length === 0);
+  console.log('missingKeys 457', missingKeys);
+  console.log('missingMember 457', missingMember);
+  console.log('missingKeys.length === 0 457', missingKeys.length === 0);
   // console.log('!user.iqId 456', !user.iqId);
-  console.log('emptyKeys.length === 0 456', emptyKeys.length === 0);
-  console.log('user 456', user);
+  console.log('emptyKeys.length === 0 457', emptyKeys.length === 0);
+  console.log('user 457', user);
 
-  console.log('redirectToReferrer2 13', redirectToReferrer2);
+  console.log('redirectToReferrer2 457', redirectToReferrer2);
   // const users = allUsers?.data?.allUsers?.users;
   // console.log('users 484', users);
 
@@ -234,6 +254,11 @@ export default function LoginValidation() {
     return <div>Henter data.</div>;
   }
 
+  if (allUsersForLogin.error) {
+    console.log('error 111', allUsersForLogin.error);
+    return <div>Fejl ved hentning af data. </div>;
+  }
+
   // continuing to onboarding page and then the wanted page
   if (redirectToReferrer2) {
     console.log("`${goto || '/'}` 14", `${goto || '/'}`);
@@ -241,11 +266,29 @@ export default function LoginValidation() {
   }
   return (
     <>
-      <div>LoginValidation</div>
-      <ul>
+      <div>Find Med-Lem</div>
+      {/* <ul>
         {missingKeys &&
           missingKeys.map(key => {
             return <li>{key}</li>;
+          })}
+      </ul> */}
+      <ul>
+        {missingMember &&
+          allUsersForLogin?.data?.allUsers?.users.map(user => {
+            return (
+              <li>
+                <Button
+                  color="primary"
+                  onClick={() => {
+                    setFoundMember(user);
+                    setUserFromGraphQL(user);
+                  }}
+                >
+                  {user.username}
+                </Button>
+              </li>
+            );
           })}
       </ul>
     </>

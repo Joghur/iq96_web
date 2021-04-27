@@ -84,13 +84,18 @@ export default (id, value) => {
 };
 
 export const isEmptyObject = object => {
-  console.log('Object.keys(object) 65', Object.keys(object));
+  console.log('object 65', object);
+  console.log(
+    'Object.keys(object) 65, typeof object',
+    Object.keys(object),
+    typeof object,
+  );
   let isEmpty = true;
   Object.keys(object).map(key => {
-    // console.log('key 1', key);
-    // console.log('value 2', object[key]);
+    console.log('key 65', key);
+    console.log('value 65', object[key]);
     // console.log('object[key].length > 0 333', object[key].length > 0);
-    if (object[key].length > 0) return (isEmpty = false);
+    if (object[key] && object[key].length > 0) return (isEmpty = false);
   });
   return isEmpty;
 };
