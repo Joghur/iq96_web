@@ -392,7 +392,7 @@ export const User = () => {
       value = checked;
     }
 
-    const validated = validate(id, value, isAdmin, isSuperAdmin);
+    const validated = validate(id, value);
 
     console.log('validated', validated);
 
@@ -491,6 +491,7 @@ export const User = () => {
                         password: 'testing',
                       },
                     });
+                setErrorMessage({});
                 history.goBack();
               }}
             >

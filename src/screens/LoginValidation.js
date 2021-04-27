@@ -175,7 +175,7 @@ export default function LoginValidation() {
     if (user.firebaseUid && user.iqId) {
       handleUpdateUserWithFirebaseInfo();
       setCookie('user', JSON.stringify(user), {
-        maxAge: 47433444,
+        maxAge: 47433444, // 1½ year
         path: '/',
       });
       setRedirectToReferrer2(true);

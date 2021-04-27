@@ -11,6 +11,7 @@ import { useGradientBtnStyles } from '@mui-treasury/styles/button/gradient';
 import { usePushingGutterStyles } from '@mui-treasury/styles/gutter/pushing';
 import { auth } from '../utils/firebase';
 import { useHistory } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -36,6 +37,11 @@ const useStyles = makeStyles(theme => ({
 export function Login() {
   // recoil
   const [user, setUser] = useRecoilState(userState);
+  console.log('user 874', user);
+
+  // react-cookie
+  const [cookies, setCookies] = useCookies(['quiz']);
+  console.log('cookies 874', cookies);
 
   // material-ui
   const classes = useStyles();
@@ -53,10 +59,13 @@ export function Login() {
   // react
   const [redirectToReferrer, setRedirectToReferrer] = React.useState(false);
   const [signingUp, setSigningUp] = React.useState(false);
-  const [emailPassword, setEmailPassword] = React.useState({
+  const [form, setForm] = React.useState({
     email: user.email,
+    quiz: cookies.quiz,
   });
   const [errorMessage, setErrorMessage] = React.useState({});
+
+  console.log('form 874', form);
 
   // Handles all changes
   const handleChange = event => {
@@ -64,8 +73,8 @@ export function Login() {
     let value = event?.target?.value;
 
     // console.log('event.target 143', event?.target);
-    console.log('id in 144', id);
-    // console.log('value 145', value);
+    console.log('id in 874', id);
+    console.log('value 874', value);
 
     const validated = validate(id, value);
     console.log('validated.errorMessage 10', validated.errorMessage);
@@ -79,9 +88,9 @@ export function Login() {
 
     console.log('id out', id);
 
-    // insert new values in emailPassword object
-    setEmailPassword(emailPassword => {
-      return { ...emailPassword, [id]: validated.value };
+    // insert new values in form object
+    setForm(oldForm => {
+      return { ...oldForm, [id]: validated.value };
     });
   };
 
@@ -90,7 +99,7 @@ export function Login() {
       return;
     }
     try {
-      await signin(emailPassword.email, emailPassword.password);
+      await signin(form.email, form.password);
       setTimeout(() => {
         setRedirectToReferrer(true);
       }, 500);
@@ -105,22 +114,35 @@ export function Login() {
   };
 
   const _signup = async () => {
-    if (emailPassword.password !== emailPassword.repeatPassword) {
+    if (form.password !== form.repeatPassword) {
       setErrorMessage({ password: 'Kodeord skal matche' });
       return;
     }
 
-    if (!isEmptyObject(errorMessage) || emailPassword.quiz.length === 0) {
+    const validated = validate('quiz', form.quiz ? form.quiz : '');
+
+    // some fields need to be validated before continuing
+    if (!form.quiz || !validated.ok) {
+      setErrorMessage({});
+      setErrorMessage({ quiz: 'Quiz feltet skal udfyldes' });
       return;
     }
+
+    // save a cookie for future logins
+    console.log('form.quiz 874', form.quiz);
+    setCookies('quiz', form.quiz, {
+      maxAge: 47433444, // 1½ year
+      path: '/',
+    });
+
     let emailUser;
     try {
-      emailUser = await signup(emailPassword.email, emailPassword.password);
+      emailUser = await signup(form.email, form.password);
       console.log('_signup emailUser 15', emailUser);
       if (emailUser) {
         setUser(async oldUser => ({
           ...oldUser,
-          email: emailUser.email,
+          displayName: emailUser.email,
           firebaseUid: emailUser.uid,
         }));
       }
@@ -142,7 +164,24 @@ export function Login() {
 
   const handleLoginFacebook = async () => {
     console.log('handleLoginFacebook 104');
-    setEmailPassword({}); // emptying email/password to avoid errors
+    setForm({}); // emptying email/password to avoid errors
+
+    const validated = validate('quiz', form.quiz ? form.quiz : '');
+
+    // some fields need to be validated before continuing
+    if (!form.quiz || !validated.ok) {
+      setErrorMessage({});
+      setErrorMessage({ quiz: 'Quiz feltet skal udfyldes' });
+      return;
+    }
+
+    // save a cookie for future logins
+    console.log('form.quiz 874', form.quiz);
+    setCookies('quiz', form.quiz, {
+      maxAge: 47433444, // 1½ year
+      path: '/',
+    });
+
     let fbUser;
     try {
       fbUser = await loginFacebook();
@@ -153,7 +192,6 @@ export function Login() {
           return {
             ...oldUser,
             displayName: fbUser.displayName,
-            // email: fbUser.email,
             firebaseUid: fbUser.uid,
           };
         });
@@ -177,7 +215,26 @@ export function Login() {
 
   const handleLoginGoogle = async () => {
     console.log('handleLoginGoogle 106');
-    setEmailPassword({}); // emptying email/password to avoid errors
+    setForm({}); // emptying email/password to avoid errors
+
+    const validated = validate('quiz', form.quiz ? form.quiz : '');
+
+    console.log('validated 874', validated);
+    console.log('form.quiz 874', form.quiz);
+    // some fields need to be clear before continuing
+    if (!form.quiz || !validated.ok) {
+      setErrorMessage({});
+      setErrorMessage({ quiz: 'Quiz feltet skal udfyldes' });
+      return;
+    }
+
+    // save a cookie for future logins
+    console.log('form.quiz 874', form.quiz);
+    setCookies('quiz', form.quiz, {
+      maxAge: 47433444, // 1½ year
+      path: '/',
+    });
+
     let googleUser;
     try {
       googleUser = await loginGoogle();
@@ -186,7 +243,6 @@ export function Login() {
         setUser(oldUser => ({
           ...oldUser,
           displayName: googleUser.displayName,
-          // email: googleUser.email,
           firebaseUid: googleUser.uid,
         }));
       }
@@ -218,29 +274,80 @@ export function Login() {
 
   console.log('state?.from 1599', state?.from);
   console.log(
-    'emailPassword.email, emailPassword.password  repeatPassword emailPassword.quiz 1598',
-    emailPassword.email,
-    emailPassword.password,
-    emailPassword.repeatPassword,
-    emailPassword.quiz,
+    'form.email, form.password  repeatPassword  1598',
+    form.email,
+    form.password,
+    form.repeatPassword,
   );
   return (
     <div>
       {signingUp ? (
-        <div style={{ display: 'flex', alignItems: 'stretch' }}>
-          <p>Brug en af følgende metoder til at melde dig til IQ96.dk</p>
+        <div>
+          <h2>Oprettelse af bruger</h2>
+          <ol>
+            <li>Besvar quiz'en</li>
+            <li>Brug en af følgende metoder til at melde dig til IQ96.dk</li>
+            <ul>
+              <li>Email</li>
+              <li>facebook</li>
+              <li>Google</li>
+            </ul>
+          </ol>
           <Button color="primary" onClick={() => setSigningUp(false)}>
             Tryk her for at logge ind
           </Button>
         </div>
       ) : (
-        <div style={{ display: 'flex', alignItems: 'stretch' }}>
-          <p>Du skal logge ind for at se indhold</p>
+        <div>
+          <h2>Login</h2>
+          <p>
+            Brug en af følgende metoder til at logge ind. Du bliver registreret
+            på siden ved (for email) at bruge link nedenunder eller (for Google
+            og facebook) bare at bruge "Login via..." knapperne.
+          </p>
+          <ul>
+            <li>Email</li>
+            <li>facebook</li>
+            <li>Google</li>
+          </ul>
           <Button color="primary" onClick={() => setSigningUp(true)}>
-            Tryk her for at tilmelde dig. Det er meget let
+            Tryk her for at tilmelde dig via --{'>'} email {'<'}---
           </Button>
         </div>
       )}
+      <div
+        style={{
+          marginTop: 10,
+          width: 454,
+        }}
+      >
+        <Tooltip title="En lille test for at se om du er IQ'er">
+          <Paper>
+            <div
+              style={{
+                paddingTop: 5,
+                paddingLeft: 5,
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <p>IQ96 quiz</p>
+            </div>
+            <TextField
+              id="quiz"
+              label="Hvad er efternavnet på vores chef"
+              type="password"
+              error={!!errorMessage.quiz}
+              value={form?.quiz}
+              className={classes.textFieldLarger}
+              margin="dense"
+              onChange={handleChange}
+              variant="outlined"
+              helperText={errorMessage.quiz && errorMessage.quiz}
+            />
+          </Paper>
+        </Tooltip>
+      </div>
       <div
         style={{
           padding: 15,
@@ -263,7 +370,7 @@ export function Login() {
               id="email"
               label="Email"
               error={!!errorMessage.email}
-              value={emailPassword.email}
+              value={form.email}
               className={classes.textFieldLarger}
               margin="dense"
               onChange={handleChange}
@@ -275,7 +382,7 @@ export function Login() {
               label="Kodeord (mindst 6 tegn)"
               type="password"
               error={!!errorMessage.password}
-              value={emailPassword.password}
+              value={form.password}
               className={classes.textFieldLarger}
               margin="dense"
               onChange={handleChange}
@@ -289,7 +396,7 @@ export function Login() {
                   label="Gentag kodeord"
                   type="password"
                   error={!!errorMessage.repeatPassword}
-                  value={emailPassword.repeatPassword}
+                  value={form.repeatPassword}
                   className={classes.textFieldLarger}
                   margin="dense"
                   onChange={handleChange}
@@ -297,17 +404,6 @@ export function Login() {
                   helperText={
                     errorMessage.repeatPassword && errorMessage.repeatPassword
                   }
-                />
-                <TextField
-                  id="quiz"
-                  label="Hvad er efternavnet på vores chef"
-                  error={!!errorMessage.quiz}
-                  value={emailPassword.quiz}
-                  className={classes.textFieldLarger}
-                  margin="dense"
-                  onChange={handleChange}
-                  variant="outlined"
-                  helperText={errorMessage.quiz && errorMessage.quiz}
                 />
               </>
             )}
@@ -397,7 +493,8 @@ export function Login() {
             errorMessage?.password ||
             errorMessage?.facebook ||
             errorMessage?.google ||
-            errorMessage?.repeatPassword}
+            errorMessage?.repeatPassword ||
+            errorMessage?.quiz}
         </Snackbar>
       )}
     </div>

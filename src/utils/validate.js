@@ -2,21 +2,12 @@ import { isEmail, isPhoneNumber, isProperPassword } from './regexPatterns';
 import translations from './translations';
 import { quiz } from './secrets';
 
-export default (id, value, isAdmin, isSuperAdmin) => {
+export default (id, value) => {
   let ok = true;
   let noError = true;
   let correctedValue = value; // initial value - some id's will change this
   let errorMessage = '';
-
-  if (!isAdmin && !isSuperAdmin) {
-    return {
-      ok: false,
-      value: correctedValue,
-      errorMessage: 'Kun admin kan gemme ændret værdi',
-    };
-  }
-
-  console.log('id 4, isAdmin, isSuperAdmin', id, isAdmin, isSuperAdmin);
+  console.log('id 874', id);
   switch (id) {
     case 'name':
     case 'username':
@@ -38,10 +29,14 @@ export default (id, value, isAdmin, isSuperAdmin) => {
 
     case 'quiz':
       correctedValue = value;
+      console.log('validate correctedValue 874', correctedValue);
+      console.log('validate correctedValue.length  874', correctedValue.length);
       if (correctedValue.toLowerCase() === quiz && correctedValue.length > 0) {
+        console.log('validate ------ 874');
         noError = true;
         break;
       }
+      console.log('validate ****** 874');
       noError = false;
       break;
 
@@ -76,16 +71,16 @@ export default (id, value, isAdmin, isSuperAdmin) => {
   }
 
   if (!noError) errorMessage = `${translations[id]} er ikke formet rigtig`;
-  if (!correctedValue) {
+  if (id !== 'quiz' && !correctedValue) {
     noError = true;
     errorMessage = '';
-  } // value may and can be empty
+  } // value may and can be empty (except "quiz")
 
-  console.log('ok 149', ok);
-  console.log('correctedValue 150', correctedValue);
-  console.log('errorMessage 151', errorMessage);
+  console.log('ok, noError 874', ok, noError);
+  console.log('correctedValue 874', correctedValue);
+  console.log('errorMessage 874', errorMessage);
 
-  return { ok, value: correctedValue, errorMessage };
+  return { ok: noError, value: correctedValue, errorMessage };
 };
 
 export const isEmptyObject = object => {
