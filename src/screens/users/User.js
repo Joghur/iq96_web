@@ -344,6 +344,9 @@ export const User = () => {
    * @param {*} secondParam
    */
   const handleChange = (event, secondParam) => {
+    console.log('before !isAdmin && !isSuperAdmin 64');
+    if (!isAdmin && !isSuperAdmin) return;
+    console.log('after !isAdmin && !isSuperAdmin 65');
     let isError = false;
     let id = event?.target?.id;
     let value = event?.target?.value;
@@ -409,7 +412,17 @@ export const User = () => {
       setDidChange(false);
     }
 
-    console.log('id out', id);
+    console.log('id out, (id === roles', id, id === 'roles');
+
+    // updaing recoil state with new roles info
+    // for scenarios where roles "admin" and "superadmin" are changed
+    // which will have an effect on what to alter in user data
+    if (id === 'roles') {
+      console.log('id 65');
+      setRecoilUser(oldUser => {
+        return { ...oldUser, [id]: validated.value };
+      });
+    }
 
     // insert new values in user object
     setUser(user => {
@@ -429,6 +442,7 @@ export const User = () => {
               style={{ marginLeft: 10 }}
               onClick={e => {
                 e.preventDefault();
+                if (!isAdmin && !isSuperAdmin) return;
                 console.log('updateUser onClick user 98', user);
                 id !== '-1'
                   ? updateUser({
