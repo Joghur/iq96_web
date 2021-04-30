@@ -15,9 +15,14 @@ export const dateEpochToDateString = (
   format = 'YYYY-MM-DD HH:mm:ss',
 ) => {
   try {
+    let epoch =
+      typeof epochDateString === 'number'
+        ? epochDateString
+        : Number(epochDateString);
     let date = new Date(0);
-    date.setUTCMilliseconds(Number(epochDateString));
-    return moment(date).local().format(format);
+    date.setUTCMilliseconds(epoch);
+    const returndate = moment(date).local().format(format);
+    return returndate;
   } catch (error) {
     alert('Der er sket en dato fejl');
   }
@@ -31,9 +36,9 @@ export const dateEpochToDateString = (
  * TODO: Needs testing
  *
  * @param {string} epoc
- * @returns Date format Default format: d/M-y - >13/2-2015
+ * @returns Date format Default format: d/M-y - >13/2-2015 D or d?
  */
-export const dateStringToEpoch = (dateString, format = 'd/M-y') => {
+export const dateStringToEpoch = (dateString, format = 'D/M-y') => {
   let date;
   try {
     date = parse(dateString, format, new Date());

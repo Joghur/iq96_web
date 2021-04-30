@@ -100,8 +100,9 @@ export default function LoginValidation() {
   const [goto, setGoto] = useState(params.get('to'));
   const [redirectToReferrer2, setRedirectToReferrer2] = useState(false);
   const [userFromGraphQL, setUserFromGraphQL] = useState({});
-  const [missingMember, setMissingMember] = useState(false);
+  const [missingMember, setMissingMember] = useState(false); // member has not been found in graphQL server
   const [foundMember, setFoundMember] = useState({});
+  const [filteredSortedUsers, setFilteredSortedUsers] = useState([]);
 
   // recoil
   const [user, setUser] = useRecoilState(userState);
@@ -120,12 +121,25 @@ export default function LoginValidation() {
     UPDATE_USER_FIREBASE,
   );
 
+  // remove users who has an firebaseuid. They have been registered in graphQL server
+  // sort alphabetically
   useEffect(() => {
-    console.log('user 4796', user);
+    if (allUsersForLogin?.data) {
+      const users = allUsersForLogin?.data?.allUsers?.users;
+      const filtering = users.filter(_user => {
+        return _user.firebaseuid === '';
+      });
+      const sorted = filtering.sort((a, b) => {
+        const order = b.username.toLowerCase() < a.username.toLowerCase();
+        return order;
+      });
+      setFilteredSortedUsers(sorted);
+    }
+  }, [allUsersForLogin.loading]);
+
+  useEffect(() => {
     const missing = findMissingKeysInObject(user, initialUserStates);
     const empty = findEmptyKeysInObject(user);
-    console.log('missingKeys 4796', missing);
-    console.log('empty (keys in object) 4796', empty);
     setMissingKeys(missing);
     setEmptyKeys(empty);
     const users = allUsersForLogin?.data?.allUsers?.users;
@@ -133,7 +147,11 @@ export default function LoginValidation() {
     if ((missingKeys.length > 0 || emptyKeys.length > 0) && users) {
       // todo implement firebaseUid in server database
       const gotUserByEmail = users.filter(_user => {
-        return _user.email === user.email || _user.workemail === user.email;
+        return (
+          _user.firebaseemail === user.email ||
+          _user.email === user.email ||
+          _user.workemail === user.email
+        );
       });
       console.log('gotUserByEmail 4796', gotUserByEmail);
       console.log('gotUserByEmail.length > 0 4796', gotUserByEmail.length > 0);
@@ -167,18 +185,6 @@ export default function LoginValidation() {
       } else {
         console.log('no existing user 4796');
         setMissingMember(true);
-        // console.log('users[25].username 4798', users[25].username);
-        // console.log('users[25] 4799', users[25]);
-        // setUser(oldUser => ({
-        //   firebaseUid: user.firebaseUid,
-        //   email: user.email,
-        //   iqId: users[25].id,
-        //   username: users[25].username,
-        //   roles: users[25].roles,
-        //   displayName: users[25].name ? users[25].name : oldUser.displayName,
-        // }));
-        // // whole user needed when updating db.
-        // setUserFromGraphQL(users[25]);
       }
     }
   }, [allUsersForLogin.loading, foundMember]);
@@ -240,16 +246,6 @@ export default function LoginValidation() {
   // const users = allUsers?.data?.allUsers?.users;
   // console.log('users 484', users);
 
-  // useEffect(() => {
-  //   const users = allUsers?.data?.allUsers?.users;
-  //   console.log('typeof users 478', typeof users);
-  //   console.log('users 479', users);
-  //   // checking for array (JS arrays are both objects and arrays so have to check both)
-  //   if (users instanceof Object && users instanceof Array) {
-  //     setEmptyKeys(findEmptyKeysInObject(user));
-  //   }
-  // }, [allUsers?.data]);
-
   if (allUsersForLogin.loading) {
     return <div>Henter data.</div>;
   }
@@ -275,7 +271,8 @@ export default function LoginValidation() {
       </ul> */}
       <ul>
         {missingMember &&
-          allUsersForLogin?.data?.allUsers?.users.map(user => {
+          // allUsersForLogin?.data?.allUsers?.users.map(user => {
+          filteredSortedUsers.map(user => {
             return (
               <li>
                 <Button

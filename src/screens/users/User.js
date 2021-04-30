@@ -309,6 +309,10 @@ export const User = () => {
   }, []);
 
   useEffect(() => {
+    console.log(
+      'in "roles" useEffect - recoilUser?.roles 1211',
+      recoilUser?.roles,
+    );
     if (recoilUser?.roles) {
       recoilUser.roles.map(item => {
         if (item.role === 'admin') setIsAdmin(true);
@@ -318,7 +322,7 @@ export const User = () => {
         }
       });
     }
-  }, [recoilUser]);
+  }, [recoilUser?.roles]);
 
   if (userQuery.loading) return <div>Henter Med-Lem...</div>;
 
@@ -327,16 +331,6 @@ export const User = () => {
 
   if (userQuery.data?.user?.errors) return <div>Kunne ikke finde Med-Lem</div>;
 
-  console.log('user 1', user);
-  console.log('user 1', user?.firebaseuid);
-  console.log('user 1', user?.firebaseemail);
-  // console.log('data 2', data?.updateUser?.id);
-  // console.log('error 3 ', error);
-  // console.log('errorMessage 4', errorMessage);
-  // console.log('deleteUser.data 5', deleteUser.data);
-  console.log('isAdmin 6', isAdmin);
-  console.log('isSuperAdmin 6', isSuperAdmin);
-
   /**
    * Handles all form changes including validation
    *
@@ -344,26 +338,12 @@ export const User = () => {
    * @param {*} secondParam
    */
   const handleChange = (event, secondParam) => {
-    console.log('before !isAdmin && !isSuperAdmin 64');
     if (!isAdmin && !isSuperAdmin) return;
-    console.log('after !isAdmin && !isSuperAdmin 65');
     let isError = false;
     let id = event?.target?.id;
     let value = event?.target?.value;
     let name = event?.target?.name;
     let checked = event?.target?.checked;
-
-    console.log('event', event);
-    console.log('event.target', event?.target);
-    console.log('id in', id);
-    console.log('checked', checked);
-    console.log('name', name);
-    // console.log(' typeof event', typeof event);
-    // console.log('event?.constructor?.name', event?.constructor?.name);
-    console.log('secondParam', secondParam);
-    // console.log('typeof secondParam', typeof secondParam);
-    // console.log('secondParam?.value', secondParam?.props?.value);
-    // console.log('secondParam?.value', secondParam);
 
     // From select titles comes an array (roles) and id is something like
     // roles-option-1. We only need roles text for the key in "user".
@@ -382,7 +362,6 @@ export const User = () => {
     // event is a Date object and secondParam is date in string format chosen by Datepicker
     if (event?.constructor?.name === 'Date') {
       id = 'birthday';
-      // console.log('dateStringToEpoch(value)', dateStringToEpoch(secondParam));
       value = dateStringToEpoch(secondParam);
     }
 
@@ -412,13 +391,10 @@ export const User = () => {
       setDidChange(false);
     }
 
-    console.log('id out, (id === roles', id, id === 'roles');
-
     // updaing recoil state with new roles info
     // for scenarios where roles "admin" and "superadmin" are changed
     // which will have an effect on what to alter in user data
-    if (id === 'roles') {
-      console.log('id 65');
+    if (id === 'roles' && recoilUser.iqId === user.id) {
       setRecoilUser(oldUser => {
         return { ...oldUser, [id]: validated.value };
       });
@@ -434,7 +410,7 @@ export const User = () => {
     <div>
       <div>
         <BackButton />
-        {didChange && (
+        {didChange && (isAdmin || isSuperAdmin) && (
           <Tooltip title="Gem rettelser">
             <Button
               variant="contained"
@@ -442,8 +418,6 @@ export const User = () => {
               style={{ marginLeft: 10 }}
               onClick={e => {
                 e.preventDefault();
-                if (!isAdmin && !isSuperAdmin) return;
-                console.log('updateUser onClick user 98', user);
                 id !== '-1'
                   ? updateUser({
                       variables: {
@@ -499,7 +473,7 @@ export const User = () => {
             </Button>
           </Tooltip>
         )}
-        {id !== '-1' && (
+        {id !== '-1' && (isAdmin || isSuperAdmin) && (
           <>
             <Tooltip title="Tryk kun på denne knap hvis du vil slette en bruger der er oprettet ved en fejl eller under test. Du får een mulighed mere for at fortryde hvis du trykker">
               <Button

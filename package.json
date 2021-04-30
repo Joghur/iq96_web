@@ -2,10 +2,10 @@
   "name": "iq96_web",
   "version": "0.1.0",
   "private": true,
-  "homepage": "IQ4/",
+  "homepage": ".",
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "node ./update-build.js && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --cache",
@@ -70,5 +70,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "buildDate": 1619802472098
 }

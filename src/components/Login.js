@@ -98,13 +98,24 @@ export function Login() {
     if (!isEmptyObject(errorMessage)) {
       return;
     }
+
+    let emailLoginUser;
     try {
-      await signin(form.email, form.password);
+      emailLoginUser = await signin(form.email, form.password);
+      if (emailLoginUser) {
+        setUser(async oldUser => ({
+          ...oldUser,
+          email: emailLoginUser.email,
+          displayName: emailLoginUser.email,
+          firebaseUid: emailLoginUser.uid,
+        }));
+      }
       setTimeout(() => {
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error 201', error.code);
+      console.log('error 201', error);
+      console.log('error.code 201', error.code);
       if (error.code === 'auth/too-many-requests') {
         setErrorMessage({ email: 'For mange forsøg. Prøv igen senere' });
       } else {
@@ -142,6 +153,7 @@ export function Login() {
       if (emailUser) {
         setUser(async oldUser => ({
           ...oldUser,
+          email: emailUser.email,
           displayName: emailUser.email,
           firebaseUid: emailUser.uid,
         }));
@@ -150,7 +162,8 @@ export function Login() {
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error 202', error.code);
+      console.log('error.code 202', error.code);
+      console.log('error 202', error);
       setErrorMessage({}); // clear errorMessage to provoke a response
       if (error.code === 'auth/weak-password') {
         setErrorMessage({ password: 'Kodeordet skal være på mindst 6 tegn.' });
@@ -200,12 +213,13 @@ export function Login() {
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error 2045', error);
+      console.log('error 203', error);
+      console.log('error.code 203', error.code);
       setErrorMessage({}); // clear errorMessage to provoke a response
       if (error.code === 'auth/account-exists-with-different-credential') {
         setErrorMessage({
           facebook:
-            'Du er tidligere logget ind med en Google eller email. Brug denne metode igen',
+            'Du er tidligere logget ind med en Google. Brug denne metode igen',
         });
       } else {
         setErrorMessage({ facebook: 'Der er sket en fejl.' });
@@ -219,8 +233,6 @@ export function Login() {
 
     const validated = validate('quiz', form.quiz ? form.quiz : '');
 
-    console.log('validated 874', validated);
-    console.log('form.quiz 874', form.quiz);
     // some fields need to be clear before continuing
     if (!form.quiz || !validated.ok) {
       setErrorMessage({});
@@ -229,7 +241,6 @@ export function Login() {
     }
 
     // save a cookie for future logins
-    console.log('form.quiz 874', form.quiz);
     setCookies('quiz', form.quiz, {
       maxAge: 47433444, // 1½ year
       path: '/',
@@ -250,7 +261,6 @@ export function Login() {
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error 204', error.code);
       setErrorMessage({}); // clear errorMessage to provoke a response
       if (error.code === 'auth/account-exists-with-different-credential') {
         setErrorMessage({
@@ -272,13 +282,6 @@ export function Login() {
     );
   }
 
-  console.log('state?.from 1599', state?.from);
-  console.log(
-    'form.email, form.password  repeatPassword  1598',
-    form.email,
-    form.password,
-    form.repeatPassword,
-  );
   return (
     <div>
       {signingUp ? (

@@ -6,14 +6,16 @@ import {
   InMemoryCache,
 } from '@apollo/client';
 import { useRecoilValue } from 'recoil';
-import Routing from './Routing';
+// eslint-disable-next-line import/named
+import { Routing } from './Routing';
 import { SERVER_URL } from './constants';
 import { tokenState } from './Recoil';
+import packageJson from '../package.json';
+import { dateEpochToDateString } from './utils/dates';
+import withClearCache from './ClearCache';
 
-function App() {
+function MainApp() {
   const token = useRecoilValue(tokenState);
-
-  console.log('App token 1000', token);
 
   const httpLink = new HttpLink({
     uri: `${SERVER_URL}/graphql`,
@@ -37,10 +39,23 @@ function App() {
   });
 
   return (
-    <ApolloProvider client={client}>
-      <Routing />
-    </ApolloProvider>
+    <div>
+      <ApolloProvider client={client}>
+        <Routing
+          buildDate={dateEpochToDateString(
+            packageJson.buildDate,
+            'D/M-Y HH:mm',
+          )}
+        />
+      </ApolloProvider>
+    </div>
   );
+}
+
+const ClearCacheComponent = withClearCache(MainApp);
+
+function App() {
+  return <ClearCacheComponent />;
 }
 
 export default App;

@@ -113,7 +113,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function Routing() {
+export function Routing({ buildDate }) {
   // material-ui
   const classes = useStyles();
   const theme = useTheme();
@@ -341,6 +341,7 @@ function Routing() {
               >
                 <PreviousTours />
               </PrivateRoute>
+              {buildDate && <p>Opdateret: {buildDate}</p>}
             </main>
           </div>
         </main>
@@ -348,5 +349,3 @@ function Routing() {
     </div>
   );
 }
-
-export default Routing;
