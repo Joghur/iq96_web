@@ -29,3 +29,5 @@ yarn-error.log*
 *.pdf
 
 src/utils/secrets.js
+
+src/constants.js

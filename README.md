@@ -1,11 +1,28 @@
 # IQ96 web client
 
-### Constant file needed (not provided in repo):
+### Some files needed (not provided in repo):
 
-./src/constants.js
+Some URL's needed. Most importing is the SERVER_URL which is the address of the graphQL server
 
-> export const IFRAME_URL = 'SOMEURL';
-> export const SERVER_URL = 'IQ96_SERVER_URL';
+**./src/constants.js**
+
+    export const IFRAME_URL = 'SOMEURL_OF_OLD_SITE';
+    export const IFRAME_COUNTDOWN = 'SOMEURL_OF_OLD_SITE_COMPONENT';
+    export const SERVER_URL = 'GRAPHQL_SERVER_URL';
+
+**./src/utils/secrets.js**
+get api info from firebase console
+
+    export const config = {
+      apiKey: APIKEY,
+      authDomain: authDomain,
+      projectId: projectId,
+      storageBucket: storageBucket,
+      messagingSenderId: messagingSenderId,
+      appId: appId,
+    };
+
+    export const quiz = 'quiz result';
 
 ### TODO
 
