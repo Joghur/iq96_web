@@ -24,8 +24,10 @@ import AirplanemodeActiveIcon from '@material-ui/icons/AirplanemodeActive';
 import SportsKabaddiIcon from '@material-ui/icons/SportsKabaddi';
 import EmojiEventsIcon from '@material-ui/icons/EmojiEvents';
 import Header from './components/Header';
+import Facebook from './components/Facebook';
 import { Users } from './screens/users/Users';
 import { User } from './screens/users/User';
+import { Logout } from './screens/Logout';
 import { Board } from './screens/users/Board';
 import { Titles } from './screens/users/Titles';
 import { SignIn } from './screens/SignIn';
@@ -147,11 +149,27 @@ export function Routing({ buildDate }) {
     if (userStateHandler?.email) {
       setAuthenticated(true);
 
+      console.log(
+        'email 98',
+        userStateHandler.email
+          ? userStateHandler.email
+          : userStateHandler?.user.email,
+      );
+      console.log(
+        'uid 98',
+        userStateHandler.uid
+          ? userStateHandler.uid
+          : userStateHandler?.user?.uid,
+      );
       const userData = {
-        displayName: userStateHandler.displayName,
-        email: userStateHandler.email,
-        firebaseUid: userStateHandler.uid,
+        email: userStateHandler.email
+          ? userStateHandler.email
+          : userStateHandler?.user?.email,
+        firebaseUid: userStateHandler.uid
+          ? userStateHandler.uid
+          : userStateHandler?.user?.uid,
       };
+      console.log('userData 98', userData);
       setUser(userData);
 
       // refresh firebase token and update recoil value so apolloclient will use updated token
@@ -165,30 +183,20 @@ export function Routing({ buildDate }) {
   };
 
   console.log('initializing 32', initializing);
-  console.log('user 33', user);
-  console.log('token 34', token);
+  console.log('user - 1 33', user);
 
   useEffect(() => {
-    console.log('cookies 5', cookies);
     let savedUser = {};
     if (cookies) {
       savedUser = cookies.user;
     }
-    console.log('savedUser 987', savedUser);
-    console.log('typeof savedUser 988', typeof savedUser);
     if (typeof savedUser !== 'object') {
-      console.log('4545');
       savedUser = {};
     }
-    console.log('savedUser 989', savedUser);
-    // console.log('userStateHandler 125', userStateHandler);
-    console.log('user 126', user);
+    console.log('user - 2 33', user);
 
     setUser(oldUser => {
-      console.log('oldUser 1a', oldUser);
-      console.log('savedUser 1a', savedUser);
       const sum = { ...savedUser, ...oldUser };
-      console.log('savedUser + oldUser 2aa', sum);
       return sum;
     });
   }, [initializing]);
@@ -230,6 +238,29 @@ export function Routing({ buildDate }) {
           </ListItem>
         ))}
       </List>
+      <Divider />
+      <ListSubheader>Bruger</ListSubheader>
+      {authenticated ? (
+        <List>
+          <ListItem button key={'logout'} component={NavLink} to="/logout">
+            <ListItemIcon>
+              {' '}
+              <GavelIcon />
+            </ListItemIcon>
+            <ListItemText primary="Log ud" />
+          </ListItem>
+        </List>
+      ) : (
+        <List>
+          <ListItem button key={'login'} component={NavLink} to="/login">
+            <ListItemIcon>
+              {' '}
+              <GavelIcon />
+            </ListItemIcon>
+            <ListItemText primary="Log ind" />
+          </ListItem>
+        </List>
+      )}
     </div>
   );
 
@@ -244,9 +275,14 @@ export function Routing({ buildDate }) {
             src={IFRAME_COUNTDOWN}
           />
         </div>
+        <a onClick={() => (window.location.href = 'https://iq96.dk/IQ3')}>
+          Hvis den gamle IQ96 side ikke kommer hernedenunder, så tryk her for at
+          logge ind dér, og kom tilbage hertil og genopfrisk siden
+        </a>
         <div className={classes.iframes}>
           <iframe width="1165" height="1165" title="iframe" src={IFRAME_URL} />
         </div>
+        {buildDate && <p>Siden opdateret: {buildDate}</p>}
       </>
     );
   };
@@ -254,8 +290,6 @@ export function Routing({ buildDate }) {
   if (initializing) {
     return <Snackbar severity="info">Henter....</Snackbar>;
   }
-
-  console.log('authenticated 548', authenticated);
 
   return (
     <div className={classes.root}>
@@ -299,6 +333,10 @@ export function Routing({ buildDate }) {
             <main>
               <Route exact path="/" component={OldSite} />
               <Route path="/login" component={Login} />
+              <PrivateRoute path="/logout" authenticated={authenticated}>
+                <Logout />
+              </PrivateRoute>
+              {authenticated && <Facebook />}
               <PrivateRoute
                 path="/loginvalidation"
                 authenticated={authenticated}
@@ -341,7 +379,6 @@ export function Routing({ buildDate }) {
               >
                 <PreviousTours />
               </PrivateRoute>
-              {buildDate && <p>Opdateret: {buildDate}</p>}
             </main>
           </div>
         </main>

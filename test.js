@@ -1,5 +1,4 @@
 const objWithEmptyKeys = {
-  displayName: '',
   email: '',
   firebaseUid: '',
   iqId: [''],
@@ -9,7 +8,6 @@ const objWithEmptyKeys = {
 };
 
 const objwithNoEmptyKeys = {
-  displayName: '',
   email: 'notEmpty',
   firebaseUid: 'notEmpty',
   iqId: [''],

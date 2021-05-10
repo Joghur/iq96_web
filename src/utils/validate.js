@@ -7,7 +7,7 @@ export default (id, value) => {
   let noError = true;
   let correctedValue = value; // initial value - some id's will change this
   let errorMessage = '';
-  console.log('id 874', id);
+
   switch (id) {
     case 'name':
     case 'username':
@@ -29,10 +29,7 @@ export default (id, value) => {
 
     case 'quiz':
       correctedValue = value;
-      console.log('validate correctedValue 874', correctedValue);
-      console.log('validate correctedValue.length  874', correctedValue.length);
       if (correctedValue.toLowerCase() === quiz && correctedValue.length > 0) {
-        console.log('validate ------ 874');
         noError = true;
         break;
       }
@@ -76,53 +73,29 @@ export default (id, value) => {
     errorMessage = '';
   } // value may and can be empty (except "quiz")
 
-  console.log('ok, noError 874', ok, noError);
-  console.log('correctedValue 874', correctedValue);
-  console.log('errorMessage 874', errorMessage);
-
   return { ok: noError, value: correctedValue, errorMessage };
 };
 
 export const isEmptyObject = object => {
-  console.log('object 65', object);
-  console.log(
-    'Object.keys(object) 65, typeof object',
-    Object.keys(object),
-    typeof object,
-  );
   let isEmpty = true;
   Object.keys(object).map(key => {
-    console.log('key 65', key);
-    console.log('value 65', object[key]);
-    // console.log('object[key].length > 0 333', object[key].length > 0);
     if (object[key] && object[key].length > 0) return (isEmpty = false);
   });
   return isEmpty;
 };
 
 export const findEmptyKeysInObject = object => {
-  console.log(
-    'findEmptyKeysInObject Object.keys(object) 66',
-    Object.keys(object),
-  );
   let emptyKeys = [];
   Object.keys(object).map(key => {
     if (object[key] === '') emptyKeys.push(key);
   });
-  console.log('emptyKeys 67', emptyKeys);
   return emptyKeys;
 };
 
 export const findMissingKeysInObject = (missingObject, fullObject) => {
-  console.log('fullObject 67', Object.keys(fullObject));
-  console.log(
-    'Objectwith potentiel missing keys 68',
-    Object.keys(missingObject),
-  );
   let missingKeys = [];
   Object.keys(fullObject).map(key => {
     if (!missingObject.hasOwnProperty(key)) missingKeys.push(key);
   });
-  console.log('missingKeys 67', missingKeys);
   return missingKeys;
 };

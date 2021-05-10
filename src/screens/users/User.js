@@ -309,10 +309,6 @@ export const User = () => {
   }, []);
 
   useEffect(() => {
-    console.log(
-      'in "roles" useEffect - recoilUser?.roles 1211',
-      recoilUser?.roles,
-    );
     if (recoilUser?.roles) {
       recoilUser.roles.map(item => {
         if (item.role === 'admin') setIsAdmin(true);
@@ -372,8 +368,6 @@ export const User = () => {
     }
 
     const validated = validate(id, value);
-
-    console.log('validated', validated);
 
     // if something is not validated set error states
     if (validated.errorMessage) {

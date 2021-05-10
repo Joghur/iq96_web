@@ -41,7 +41,6 @@ export function Login() {
 
   // react-cookie
   const [cookies, setCookies] = useCookies(['quiz']);
-  console.log('cookies 874', cookies);
 
   // material-ui
   const classes = useStyles();
@@ -65,19 +64,13 @@ export function Login() {
   });
   const [errorMessage, setErrorMessage] = React.useState({});
 
-  console.log('form 874', form);
-
   // Handles all changes
   const handleChange = event => {
     let id = event?.target?.id;
     let value = event?.target?.value;
 
-    // console.log('event.target 143', event?.target);
-    console.log('id in 874', id);
-    console.log('value 874', value);
-
     const validated = validate(id, value);
-    console.log('validated.errorMessage 10', validated.errorMessage);
+
     // if something is not validated exit function and set error states
     if (validated.errorMessage) {
       setErrorMessage({ [id]: validated.errorMessage });
@@ -85,8 +78,6 @@ export function Login() {
       // if everything is validated correctly continue with setting email/password states
       setErrorMessage({});
     }
-
-    console.log('id out', id);
 
     // insert new values in form object
     setForm(oldForm => {
@@ -102,20 +93,19 @@ export function Login() {
     let emailLoginUser;
     try {
       emailLoginUser = await signin(form.email, form.password);
-      if (emailLoginUser) {
-        setUser(async oldUser => ({
-          ...oldUser,
-          email: emailLoginUser.email,
-          displayName: emailLoginUser.email,
-          firebaseUid: emailLoginUser.uid,
-        }));
-      }
       setTimeout(() => {
+        console.log('emailLoginUser 587', emailLoginUser.user);
+        console.log('emailLoginUser.uid 587', emailLoginUser.user.uid);
+        if (emailLoginUser) {
+          setUser(oldUser => ({
+            ...oldUser,
+            email: emailLoginUser.user.email,
+            firebaseUid: emailLoginUser.user.uid,
+          }));
+        }
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error 201', error);
-      console.log('error.code 201', error.code);
       if (error.code === 'auth/too-many-requests') {
         setErrorMessage({ email: 'For mange forsøg. Prøv igen senere' });
       } else {
@@ -140,7 +130,6 @@ export function Login() {
     }
 
     // save a cookie for future logins
-    console.log('form.quiz 874', form.quiz);
     setCookies('quiz', form.quiz, {
       maxAge: 47433444, // 1½ year
       path: '/',
@@ -149,21 +138,20 @@ export function Login() {
     let emailUser;
     try {
       emailUser = await signup(form.email, form.password);
-      console.log('_signup emailUser 15', emailUser);
-      if (emailUser) {
-        setUser(async oldUser => ({
-          ...oldUser,
-          email: emailUser.email,
-          displayName: emailUser.email,
-          firebaseUid: emailUser.uid,
-        }));
-      }
       setTimeout(() => {
+        console.log('emailUser.user 587', emailUser.user);
+        console.log('emailUser.user.uid 587', emailUser.user.uid);
+        if (emailUser) {
+          console.log(' --> emailUser.user.email 587', emailUser.user.email);
+          setUser(oldUser => ({
+            ...oldUser,
+            email: emailUser.user.email,
+            firebaseUid: emailUser.user.uid,
+          }));
+        }
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error.code 202', error.code);
-      console.log('error 202', error);
       setErrorMessage({}); // clear errorMessage to provoke a response
       if (error.code === 'auth/weak-password') {
         setErrorMessage({ password: 'Kodeordet skal være på mindst 6 tegn.' });
@@ -176,7 +164,6 @@ export function Login() {
   };
 
   const handleLoginFacebook = async () => {
-    console.log('handleLoginFacebook 104');
     setForm({}); // emptying email/password to avoid errors
 
     const validated = validate('quiz', form.quiz ? form.quiz : '');
@@ -189,7 +176,6 @@ export function Login() {
     }
 
     // save a cookie for future logins
-    console.log('form.quiz 874', form.quiz);
     setCookies('quiz', form.quiz, {
       maxAge: 47433444, // 1½ year
       path: '/',
@@ -198,23 +184,19 @@ export function Login() {
     let fbUser;
     try {
       fbUser = await loginFacebook();
-      console.log('handleLoginFacebook user 105', fbUser);
-      if (fbUser) {
-        setUser(oldUser => {
-          console.log('oldUser 587', oldUser);
-          return {
-            ...oldUser,
-            displayName: fbUser.displayName,
-            firebaseUid: fbUser.uid,
-          };
-        });
-      }
       setTimeout(() => {
+        if (fbUser) {
+          setUser(oldUser => {
+            console.log('oldUser 587', oldUser);
+            return {
+              ...oldUser,
+              firebaseUid: fbUser.uid,
+            };
+          });
+        }
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
-      console.log('error 203', error);
-      console.log('error.code 203', error.code);
       setErrorMessage({}); // clear errorMessage to provoke a response
       if (error.code === 'auth/account-exists-with-different-credential') {
         setErrorMessage({
@@ -228,7 +210,6 @@ export function Login() {
   };
 
   const handleLoginGoogle = async () => {
-    console.log('handleLoginGoogle 106');
     setForm({}); // emptying email/password to avoid errors
 
     const validated = validate('quiz', form.quiz ? form.quiz : '');
@@ -249,15 +230,13 @@ export function Login() {
     let googleUser;
     try {
       googleUser = await loginGoogle();
-      console.log('loginGooghandleLoginGooglele googleUser 107', googleUser);
-      if (googleUser) {
-        setUser(oldUser => ({
-          ...oldUser,
-          displayName: googleUser.displayName,
-          firebaseUid: googleUser.uid,
-        }));
-      }
       setTimeout(() => {
+        if (googleUser) {
+          setUser(oldUser => ({
+            ...oldUser,
+            firebaseUid: googleUser.uid,
+          }));
+        }
         setRedirectToReferrer(true);
       }, 500);
     } catch (error) {
@@ -272,8 +251,6 @@ export function Login() {
       }
     }
   };
-
-  console.log('isEmptyObject(errorMessage 6', isEmptyObject(errorMessage));
 
   // continuing to onboarding page and then the wanted page
   if (redirectToReferrer === true) {

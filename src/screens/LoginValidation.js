@@ -115,7 +115,7 @@ export default function LoginValidation() {
 
   //graphQL
   const allUsersForLogin = useQuery(ALL_USERS_FOR_LOGIN, {
-    fetchPolicy: 'network-only',
+    fetchPolicy: 'cache-and-network',
   });
   const [updateUserWithFirebaseInfo, { data }] = useMutation(
     UPDATE_USER_FIREBASE,
@@ -144,7 +144,13 @@ export default function LoginValidation() {
     setEmptyKeys(empty);
     const users = allUsersForLogin?.data?.allUsers?.users;
     console.log('users 4796', users);
-    if ((missingKeys.length > 0 || emptyKeys.length > 0) && users) {
+    console.log('recoil user 4796', user);
+    console.log('recoil allUsersForLogin?.data 4796', allUsersForLogin?.data);
+    if (
+      (missingKeys.length > 0 || emptyKeys.length > 0) &&
+      users &&
+      user.email
+    ) {
       // todo implement firebaseUid in server database
       const gotUserByEmail = users.filter(_user => {
         return (
@@ -162,24 +168,24 @@ export default function LoginValidation() {
         existingUser = foundMember;
       }
       console.log(
-        'existingUser // - isEmptyObject(existingUser) 4796',
+        'existingUser 4796',
         existingUser,
         // isEmptyObject(existingUser),
       );
       console.log('gotUserByEmail 4796', gotUserByEmail);
       console.log('foundMember 4796', foundMember);
       if (!isEmptyObject(existingUser)) {
+        console.log('existingUser 4796', existingUser);
         console.log('user 4796', user);
-        setUser(oldUser => ({
+        const userData = {
           firebaseUid: user.firebaseUid,
           email: user.email,
           iqId: existingUser.id,
           username: existingUser.username,
           roles: existingUser.roles,
-          displayName: existingUser.name
-            ? existingUser.name
-            : oldUser.displayName,
-        }));
+        };
+        console.log('userData 4796', userData);
+        setUser(userData);
         // whole user needed when updating db.
         setUserFromGraphQL(existingUser);
       } else {
@@ -187,16 +193,10 @@ export default function LoginValidation() {
         setMissingMember(true);
       }
     }
-  }, [allUsersForLogin.loading, foundMember]);
+  }, [allUsersForLogin?.data?.allUsers, foundMember, user]);
 
   useEffect(() => {
-    const users = allUsersForLogin?.data?.allUsers?.users;
-    console.log('users 480', users);
-    console.log('user 481', user);
-    console.log('missingKeys 482', missingKeys);
-    console.log('emptyKeys 483', emptyKeys);
-    // if (users && missingKeys.length === 0 && emptyKeys.length === 0) {
-    console.log('missingKeys 457', missingKeys);
+    console.log('user 4796', user);
     if (user.firebaseUid && user.iqId) {
       handleUpdateUserWithFirebaseInfo();
       setCookie('user', JSON.stringify(user), {
@@ -205,8 +205,7 @@ export default function LoginValidation() {
       });
       setRedirectToReferrer2(true);
     }
-    // }
-  }, [missingKeys, emptyKeys, user]);
+  }, [user]);
 
   const handleUpdateUserWithFirebaseInfo = () => {
     console.log('handleUpdateUserWithFirebaseInfo user 456', user);
@@ -257,7 +256,6 @@ export default function LoginValidation() {
 
   // continuing to onboarding page and then the wanted page
   if (redirectToReferrer2) {
-    console.log("`${goto || '/'}` 14", `${goto || '/'}`);
     return <Redirect to={`${goto || '/'}`} />;
   }
   return (

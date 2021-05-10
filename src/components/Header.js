@@ -3,22 +3,20 @@ import { fade, makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
+// import InputBase from '@material-ui/core/InputBase';
 import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
+// import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import { NavLink, useHistory } from 'react-router-dom';
-import { logout } from '../utils/auth';
 import { tokenState, userState } from '../Recoil';
 import { useRecoilState } from 'recoil';
-import { useCookies } from 'react-cookie';
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -108,9 +106,6 @@ export default function Header(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
-  // react-cookie
-  const [cookies, setCookie] = useCookies(['user']);
-
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
@@ -146,11 +141,7 @@ export default function Header(props) {
       {/* <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
       <MenuItem
         onClick={async () => {
-          setCookie('user', null, { path: '/' }); // clear cookie
-          setUser({}); // clear recoil state
-          setToken({}); // clear recoil state
-          logout(); // logout of firebase
-          history.push('/');
+          history.push('/logout');
         }}
       >
         Logout

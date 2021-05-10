@@ -1,7 +1,6 @@
 import { atom } from 'recoil';
 
 export const initialUserStates = {
-  displayName: '',
   email: '',
   firebaseUid: '',
   iqId: '',
